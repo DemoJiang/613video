@@ -222,7 +222,14 @@ export type Filter = WithDefault<'None' |
 'CIPhotoEffectTransfer' |
 'CISepiaTone', 'None'>;
 
+export type OnPlaybackStateChangedData = Readonly<{
+  isPlaying: boolean;
+  isSeeking: boolean;
+}>;
 
+export type OnVolumeChangeData = Readonly<{
+  volume: Float;
+}>;
 
 
 export interface VideoNativeProps extends ViewProps {
@@ -300,6 +307,8 @@ export interface VideoNativeProps extends ViewProps {
   onAudioFocusChanged?: DirectEventHandler<OnAudioFocusChangedData>; // (nowhere in document, so do not use as props. just type declaration)
   onGetLicense?: DirectEventHandler<OnGetLicenseData>; // Platforms: iOS (nowhere in document, so do not use as props. just type declaration)
 
+  onVideoPlaybackStateChanged?: DirectEventHandler<OnPlaybackStateChangedData>; // android only
+  onVolumeChange?: DirectEventHandler<OnVolumeChangeData>; // android, ios
 }
 
 export type VideoComponentType = HostComponent<VideoNativeProps>

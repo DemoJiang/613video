@@ -54,6 +54,7 @@ import type {
   OnBandwidthUpdateData,
   OnBufferData,
   OnExternalPlaybackChangeData,
+  OnPlaybackStateChangedData,
 } from "./fabric/VideoNativeComponent";
 import type { ReactVideoProps } from "./types/video";
 import { generateHeaderForNative, resolveAssetSourceForVideo } from "./utils";
@@ -99,6 +100,8 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       onAudioFocusChanged,
       // @todo: fix type
       onTimedMetadata,
+      onPlaybackStateChanged,
+      onVolumeChange,
       ...rest
     },
     ref
@@ -196,6 +199,13 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       }
     }, [selectedVideoTrack]);
 
+    const _onVolumeChange = useCallback(
+      (e: NativeSyntheticEvent<Readonly<{volume: number}>>) => {
+        onVolumeChange?.(e.nativeEvent);
+      },
+      [onVolumeChange],
+    );
+
 
     const seek = useCallback(
       (time: number, tolerance?: number) => {
@@ -232,6 +242,13 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         false,
       );
     }, []);
+
+    const onVideoPlaybackStateChanged = useCallback(
+      (e: NativeSyntheticEvent<OnPlaybackStateChangedData>) => {
+        onPlaybackStateChanged?.(e.nativeEvent);
+      },
+      [onPlaybackStateChanged],
+    );
 
     const restoreUserInterfaceForPictureInPictureStopCompleted = useCallback(
       (restored: boolean) => {
@@ -362,7 +379,8 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         dismissFullscreenPlayer,
         save,
         restoreUserInterfaceForPictureInPictureStopCompleted,
-        setPlayerPauseStateCmd
+        pause,
+        resume,
       }),
       [
         seek,
@@ -370,7 +388,8 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         dismissFullscreenPlayer,
         save,
         restoreUserInterfaceForPictureInPictureStopCompleted,
-        setPlayerPauseStateCmd
+        pause,
+        resume,
       ]
     );
 
@@ -418,6 +437,10 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
           onRestoreUserInterfaceForPictureInPictureStop={
             onRestoreUserInterfaceForPictureInPictureStop
           }
+          onVideoPlaybackStateChanged={
+            onPlaybackStateChanged ? onVideoPlaybackStateChanged : undefined
+          }
+          onVolumeChange={onVolumeChange ? _onVolumeChange : undefined}
         />
         {showPoster ? (
           <Image style={posterStyle} source={{ uri: poster }} />

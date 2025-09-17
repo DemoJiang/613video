@@ -225,7 +225,20 @@ export class VideoController {
         default:
           break;
       }
+      if(state === AvplayerStatus.PLAYING){
+        this.onVideoPlaybackStateChanged(true, false);
+      } else {
+        this.onVideoPlaybackStateChanged(false, false);
+      }
     });
+  }
+
+  onVideoPlaybackStateChanged(isPlaying: boolean, isSeeking: boolean){
+    this.playPageThis.onVideoPlaybackStateChanged(isPlaying, isSeeking);
+  }
+
+  onVolumeChange(volume: number): void {
+    this.playPageThis.onVolumeChange(volume);
   }
 
   /**
@@ -400,6 +413,7 @@ export class VideoController {
 
     this.avPlayer.on('volumeChange', (vol: number) => {
       Logger.debug(TAG, `volumeChange success,and new volume is= ${vol}}`);
+      this.onVolumeChange(vol);
       this.avPlayer.off('volumeChange');
     })
   }

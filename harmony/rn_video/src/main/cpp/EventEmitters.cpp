@@ -255,5 +255,19 @@ void RNCVideoEventEmitter::onGetLicense(OnGetLicense event) const {
     });
 }
 
+void RNCVideoEventEmitter::onVideoPlaybackStateChanged(OnVideoPlaybackStateChanged event) const {
+    dispatchEvent("videoPlaybackStateChanged",[event=std::move(event)](jsi::Runtime &runtime){
+        auto payload = jsi::Object(runtime);
+        return payload;
+    });
+}
+
+void RNCVideoEventEmitter::onVolumeChange(OnVolumeChange event) const {
+    dispatchEvent("volumeChange",[event=std::move(event)](jsi::Runtime &runtime){
+        auto payload = jsi::Object(runtime);
+        return payload;
+    });
+}
+
 } //namespace react
 } //namespace facebook

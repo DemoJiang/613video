@@ -92,6 +92,9 @@ export interface IRNCVideo {
   onVideoPlaybackResume: () => void
   onVideoEnd: () => void
   onVideoError: (err: string) => void
+
+  onVideoPlaybackStateChanged: (isPlaying: boolean, isSeeking: boolean) => void  // 具体待实现，没有查明白鸿蒙的seeking
+  onVolumeChange: (volume: number) => void
 }
 const TAG: string = 'RNOH in RNCVideo'
 @Component
@@ -343,6 +346,26 @@ export struct RNCVideo {
 
     }
 
+  onVideoPlaybackStateChanged(isPlaying: boolean, isSeeking: boolean): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onVideoPlaybackStateChanged")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onVideoPlaybackStateChanged",
+        isPlaying: isPlaying,
+        isSeeking: isSeeking
+      })
+    }
+  }
+
+  onVolumeChange(volume: number): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onVolumeChange")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onVolumeChange",
+        volume: volume
+      })
+    }
+  }
 
   }
 

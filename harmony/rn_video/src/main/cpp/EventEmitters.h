@@ -84,8 +84,15 @@ public:
         std::vector<OnVideoLoadVideoTracks> videoTracks;
     };
 
+    struct OnVideoPlaybackStateChanged{
+      bool isPlaying;
+      bool isSeeking;
+    };
 
-  
+    struct OnVolumeChange{
+      Float volume;
+    };
+
     struct OnVideoLoadStart {
         bool isNetwork;
         std::string type;
@@ -175,6 +182,9 @@ public:
 
     void onAudioFocusChanged(OnAudioFocusChanged value) const;
     void onGetLicense(OnGetLicense value) const;
+
+    void onVideoPlaybackStateChanged(OnVideoPlaybackStateChanged value) const;
+    void onVolumeChange(OnVolumeChange value) const;
 };
 
 } // namespace react

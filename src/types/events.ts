@@ -33,7 +33,9 @@ import type {
   OnPictureInPictureStatusChangedData, 
   OnVideoErrorData, 
   OnAudioFocusChangedData, 
-  OnTimedMetadataData, 
+  OnTimedMetadataData,
+  OnPlaybackStateChangedData,
+  OnVolumeChangeData,
 } from 'src/fabric/VideoNativeComponent';
 
 export interface ReactVideoEvents {
@@ -58,4 +60,6 @@ export interface ReactVideoEvents {
   onRestoreUserInterfaceForPictureInPictureStop?: () => void //iOS
   // @todo: fix type
   onTimedMetadata?: (e: OnTimedMetadataData) => void //Android, iOS
+  onPlaybackStateChanged?: (e: OnPlaybackStateChangedData) => void; // Android, iOS
+  onVolumeChange?: DirectEventHandler<OnVolumeChangeData>; // android, ios
 }

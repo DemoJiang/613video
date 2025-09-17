@@ -45,6 +45,8 @@ enum RNCVideoEventType {
     RNC_VIDEO_PLAYBACK_RESUME = 9,
     RNC_VIDEO_READY_FOR_DISPLAY = 10,
     RNC_VIDEO_FULLSCREEN_PLAYER_DIDDISMISS = 11,
+    RNC_VIDEO_PLAYBACK_STATE_CHANGED = 12,
+    RNC_VIDEO_VOLUME_CHANGE = 13,
 };
 
 RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
@@ -74,6 +76,10 @@ RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
         return RNCVideoEventType::RNC_VIDEO_READY_FOR_DISPLAY;
     }else if (eventType == "videoFullscreenPlayerDidDismiss"){
         return RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_DIDDISMISS;
+    }else if (eventType == "onVideoPlaybackStateChanged"){
+        return RNCVideoEventType::RNC_VIDEO_PLAYBACK_STATE_CHANGED;
+    }else if (eventType == "onVolumeChange"){
+        return RNCVideoEventType::RNC_VIDEO_VOLUME_CHANGE;
     }
     else {
         throw std::runtime_error("Unknown Page event type");
@@ -205,6 +211,21 @@ public:
                 react::RNCVideoEventEmitter::OnVideoFullscreenPlayerDidDismiss event{};
                 LOG(INFO) << "RNCVideoEventEmitRequestHandler onVideoFullscreenPlayerDidDismiss:" ;
                 eventEmitter->onVideoFullscreenPlayerDidDismiss(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_PLAYBACK_STATE_CHANGED : {
+                bool isPlaying = arkJs.getBoolean(arkJs.getObjectProperty(ctx.payload, "isPlaying"));
+                bool isSeeking = arkJs.getBoolean(arkJs.getObjectProperty(ctx.payload, "isSeeking"));
+                react::RNCVideoEventEmitter::OnVideoPlaybackStateChanged event{isPlaying, isSeeking};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler OnVideoPlaybackStateChanged:" ;
+                eventEmitter->onVideoPlaybackStateChanged(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_VOLUME_CHANGE : {
+                float volume = (float)arkJs.getDouble(arkJs.getObjectProperty(ctx.payload, "volume"));
+                react::RNCVideoEventEmitter::OnVolumeChange event{volume};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler OnVolumeChange:" ;
+                eventEmitter->onVolumeChange(event);
                 break;
             }
             default:
