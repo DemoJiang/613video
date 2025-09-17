@@ -77,6 +77,7 @@ export const RNC_VIDEO_TYPE: string = "RNCVideo"
 export type VideoViewDescriptor = Descriptor<"RNCVideo", ViewBaseProps, AutoLayoutViewState, RNCVideoProps>
 
 const RNC_VIDEO_SEEK: string = 'seek'
+const RNC_VIDEO_CMD_STATE: string = 'setPlayerPauseStateCmd'
 
 export interface IRNCVideo {
   videoMargin: string
@@ -187,6 +188,8 @@ export struct RNCVideo {
         (command, args: (string | number)[]) => {
           if (command === RNC_VIDEO_SEEK) {
             this.playVideoModel.setSeekTime(Number(args[0]));
+          } else if (command === RNC_VIDEO_CMD_STATE){
+            this.playVideoModel.switchPlayOrPause((args[0] as boolean))
           }
         }))
     }

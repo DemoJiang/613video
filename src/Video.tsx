@@ -219,6 +219,20 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       Commands.save(videoRef.current);
     }, []);
 
+    const pause = useCallback(() => {
+      return Commands.setPlayerPauseStateCmd(
+        videoRef.current,
+        true,
+      );
+    }, []);
+
+    const resume = useCallback(() => {
+      return Commands.setPlayerPauseStateCmd(
+        videoRef.current,
+        false,
+      );
+    }, []);
+
     const restoreUserInterfaceForPictureInPictureStopCompleted = useCallback(
       (restored: boolean) => {
         setRestoreUserInterfaceForPIPStopCompletionHandler(restored);
@@ -348,6 +362,7 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         dismissFullscreenPlayer,
         save,
         restoreUserInterfaceForPictureInPictureStopCompleted,
+        setPlayerPauseStateCmd
       }),
       [
         seek,
@@ -355,6 +370,7 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         dismissFullscreenPlayer,
         save,
         restoreUserInterfaceForPictureInPictureStopCompleted,
+        setPlayerPauseStateCmd
       ]
     );
 

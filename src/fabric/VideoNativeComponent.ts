@@ -308,6 +308,7 @@ export interface NativeCommands {
   save: (viewRef: React.ElementRef<VideoComponentType>) => void;
   seek: (viewRef: React.ElementRef<VideoComponentType>, time: Float, tolerance?: Float) => void;
   // fullscreen: (viewRef: React.ElementRef<VideoComponentType>, isFullscreen: boolean) => void;
+  setPlayerPauseStateCmd: (viewRef: React.ElementRef<VideoComponentType>, paused: boolean) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
@@ -316,6 +317,7 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     'save',
     'seek',
     // 'fullscreen',
+    'setPlayerPauseStateCmd',
   ],
 });
 
