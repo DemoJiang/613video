@@ -126,6 +126,7 @@ export interface IRNCVideo {
   onAudioTracks: (audioTracks: RNCAudioTracks[]) => void
   onVideoTracks: (audioTracks: RNCVideoTracks[]) => void
   onTextTracks: (audioTracks: RNCTextTracks[]) => void
+  onPlaybackRateChange: (playbackRate: number) => void
 }
 const TAG: string = 'RNOH in RNCVideo'
 @Component
@@ -424,6 +425,16 @@ export struct RNCVideo {
       this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
         type: "onTextTracks",
         textTracks: textTracks
+      })
+    }
+  }
+
+  onPlaybackRateChange(playbackRate: number): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onPlaybackRateChange")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onPlaybackRateChange",
+        playbackRate: playbackRate
       })
     }
   }

@@ -159,7 +159,8 @@ export enum Events {
   DURATION_UPDATE = 'durationUpdate',
   END_OF_STREAM = 'endOfStream',
   BUFFERING_UPDATE = 'bufferingUpdate',
-  SEEK_DONE = 'seekDone'
+  SEEK_DONE = 'seekDone',
+  RATE_CHANGE = 'bitrateDone'
 }
 
 export enum ResizeMode {

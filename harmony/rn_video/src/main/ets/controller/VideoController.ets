@@ -121,6 +121,11 @@ export class VideoController {
         this.onVideoEnd();
       })
 
+      this.avPlayer.on(Events.RATE_CHANGE, (bitrate:number) => {
+        Logger.debug(TAG, 'RATE_CHANGE bitrate: ' + bitrate);
+        this.onPlaybackRateChange(bitrate);
+      })
+
       this.avPlayer.on(Events.BUFFERING_UPDATE, (infoType: media.BufferingInfoType, value: number) => {
         /* 播放缓存事件回调方法。BufferingInfoType为BUFFERING_PERCENT或CACHED_DURATION时，value值有效，否则固定为0。 */
         Logger.debug(TAG, 'BUFFERING_UPDATE');
@@ -693,6 +698,10 @@ export class VideoController {
    */
   onVideoEnd(): void {
     this.playPageThis.onVideoEnd();
+  }
+
+  onPlaybackRateChange(rate: number): void {
+    this.playPageThis.onPlaybackRateChange(rate);
   }
 
   /**
