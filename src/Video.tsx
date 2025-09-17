@@ -40,6 +40,9 @@ import RNCVideoComponent, {
   OnTimedMetadataData,
   OnVideoErrorData, 
 } from "./fabric/VideoNativeComponent";
+import type {
+  OnTextTracksData,
+} from './types';
 
 import type { StyleProp, ImageStyle, NativeSyntheticEvent } from "react-native";
 import type {
@@ -55,6 +58,8 @@ import type {
   OnBufferData,
   OnExternalPlaybackChangeData,
   OnPlaybackStateChangedData,
+  OnVideoTracksData,
+  OnAudioTracksData,
 } from "./fabric/VideoNativeComponent";
 import type { ReactVideoProps } from "./types/video";
 import { generateHeaderForNative, resolveAssetSourceForVideo } from "./utils";
@@ -102,6 +107,9 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       onTimedMetadata,
       onPlaybackStateChanged,
       onVolumeChange,
+      onAudioTracks,
+      onTextTracks,
+      onVideoTracks,
       ...rest
     },
     ref
@@ -205,7 +213,27 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       },
       [onVolumeChange],
     );
+    
+    const _onAudioTracks = useCallback(
+      (e: NativeSyntheticEvent<OnAudioTracksData>) => {
+        onAudioTracks?.(e.nativeEvent);
+      },
+      [onAudioTracks],
+    );
 
+    const _onTextTracks = useCallback(
+      (e: NativeSyntheticEvent<OnTextTracksData>) => {
+        onTextTracks?.(e.nativeEvent);
+      },
+      [onTextTracks],
+    );
+
+    const _onVideoTracks = useCallback(
+      (e: NativeSyntheticEvent<OnVideoTracksData>) => {
+        onVideoTracks?.(e.nativeEvent);
+      },
+      [onVideoTracks],
+    );
 
     const seek = useCallback(
       (time: number, tolerance?: number) => {
@@ -441,6 +469,9 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
             onPlaybackStateChanged ? onVideoPlaybackStateChanged : undefined
           }
           onVolumeChange={onVolumeChange ? _onVolumeChange : undefined}
+          onAudioTracks={onAudioTracks ? _onAudioTracks : undefined}
+          onTextTracks={onTextTracks ? _onTextTracks : undefined}
+          onVideoTracks={onVideoTracks ? _onVideoTracks : undefined}
         />
         {showPoster ? (
           <Image style={posterStyle} source={{ uri: poster }} />

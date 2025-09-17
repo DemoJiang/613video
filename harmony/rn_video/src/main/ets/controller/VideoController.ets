@@ -230,6 +230,7 @@ export class VideoController {
       } else {
         this.onVideoPlaybackStateChanged(false, false);
       }
+      this.getTrackDescription();
     });
   }
 
@@ -239,6 +240,84 @@ export class VideoController {
 
   onVolumeChange(volume: number): void {
     this.playPageThis.onVolumeChange(volume);
+  }
+
+   /**
+   * 获取音视频轨道信息
+   */
+  getTrackDescription(): void {
+    if (CommonConstants.GET_AUDIO_TRACKS.indexOf(this.avPlayer.state) === -1) {
+      console.error('状态不对，无法获取轨道信息');
+      return;
+    }
+
+    this.avPlayer.getSelectedTracks().then((arrList: Array<number>) => {
+      console.info('Succeeded in getting SelectedTracks:' + arrList.length);
+      for(let i = 0; i < arrList.length; i++){
+        console.info('jk------------> audio value index select:' + arrList[i]);
+      }
+    }).catch((error: BusinessError) => {
+      console.error(`Failed to get SelectedTracks, error:${error}`);
+    });
+
+    this.avPlayer.getTrackDescription((error: BusinessError, arrList: Array<media.MediaDescription>) => {
+      if ((arrList) != null) {
+        console.info('getTrackDescription arrList.length: ' + arrList.length)
+        let audioTracksArr: RNCAudioTracks[] = [];
+        let videoTracksArr: RNCVideoTracks[] = [];
+        let textTracksArr: RNCTextTracks[] = [];
+        for (let i = 0; i < arrList.length; i++) {
+          // type: 0->音频   1->视频   2->字幕
+          let type = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_TYPE];
+          if(type == 0){
+            let audioTrc = new RNCAudioTracks();
+            let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+            let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
+            let bitrate = arrList[i][media.MediaDescriptionKey.MD_KEY_BITRATE] as number;
+
+            audioTrc.index = index;
+            audioTrc.language = language;
+            audioTrc.bitrate = bitrate;
+            audioTrc.type = "audio_track";
+            audioTracksArr.push(audioTrc);
+
+            console.info('音频轨道信息 index: ' + index + ", type: " + type + ", language: " + language + ", bitrate: " + bitrate);
+          } else if (type == 1){
+            let videoTrc = new RNCVideoTracks();
+            let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+            let codec = arrList[i][media.MediaDescriptionKey.MD_KEY_CODEC_MIME] as string;
+            let width = arrList[i][media.MediaDescriptionKey.MD_KEY_WIDTH] as number;
+            let height = arrList[i][media.MediaDescriptionKey.MD_KEY_HEIGHT] as number;
+            let bitrate = arrList[i][media.MediaDescriptionKey.MD_KEY_BITRATE] as number;
+
+            videoTrc.index = index;
+            videoTrc.codecs = codec;
+            videoTrc.width = width;
+            videoTrc.height = height;
+            videoTrc.bitrate = bitrate;
+            videoTracksArr.push(videoTrc);
+            console.info('视频轨道信息 index: ' + index + ", codec: " + codec + ", width: " + width + ", height: " + height  + ", bitrate: " + bitrate);
+          } else if (type == 2){
+            let textTrc = new RNCTextTracks();
+            let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+            let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
+            let bitrate = arrList[i][media.MediaDescriptionKey.MD_KEY_BITRATE] as number;
+
+            textTrc.index = index;
+            textTrc.language = language;
+            textTrc.bitrate = bitrate;
+            textTrc.type = "text_track";
+            textTracksArr.push(textTrc);
+          }
+        }
+
+        this.playPageThis.onVideoTracks(videoTracksArr);
+        this.playPageThis.onAudioTracks(audioTracksArr);
+        this.playPageThis.onTextTracks(textTracksArr);
+      } else {
+        console.error(`Failed to do getTrackDescription, error:${error}`);
+      }
+    });
   }
 
   /**

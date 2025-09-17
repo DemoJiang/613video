@@ -21,6 +21,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
+ import type {WithDefault} from 'react-native/Libraries/Types/CodegenTypes';
 import type { 
   OnBandwidthUpdateData, 
   OnBufferData, 
@@ -36,7 +37,26 @@ import type {
   OnTimedMetadataData,
   OnPlaybackStateChangedData,
   OnVolumeChangeData,
+  OnAudioTracksData,
+  OnVideoTracksData
 } from 'src/fabric/VideoNativeComponent';
+
+export type AudioTrack = OnAudioTracksData['audioTracks'][number];
+export type TextTrack = OnTextTracksData['textTracks'][number];
+export type VideoTrack = OnVideoTracksData['videoTracks'][number];
+
+export type OnTextTracksData = Readonly<{
+  textTracks: {
+    index: number;
+    title?: string;
+    language?: string;
+    /**
+     * iOS only supports VTT, Android supports all 3
+     */
+    type?: WithDefault<string, 'srt'>;
+    selected?: boolean;
+  }[];
+}>;
 
 export interface ReactVideoEvents {
   onAudioBecomingNoisy?: () => void //Android, iOS
@@ -61,5 +81,8 @@ export interface ReactVideoEvents {
   // @todo: fix type
   onTimedMetadata?: (e: OnTimedMetadataData) => void //Android, iOS
   onPlaybackStateChanged?: (e: OnPlaybackStateChangedData) => void; // Android, iOS
-  onVolumeChange?: DirectEventHandler<OnVolumeChangeData>; // android, ios
+  onVolumeChange?: (e: OnVolumeChangeData) => void; //Android, iOS
+  onAudioTracks?: (e: OnAudioTracksData) => void; // Android
+  onTextTracks?: (e: OnTextTracksData) => void; //Android
+  onVideoTracks?: (e: OnVideoTracksData) => void; //Android
 }

@@ -231,6 +231,42 @@ export type OnVolumeChangeData = Readonly<{
   volume: Float;
 }>;
 
+export type OnAudioTracksData = Readonly<{
+  audioTracks: {
+    index: Int32;
+    title?: string;
+    language?: string;
+    bitrate?: Float;
+    type?: string;
+    selected?: boolean;
+  }[];
+}>;
+
+type OnTextTracksData = Readonly<{
+  textTracks: {
+    index: Int32;
+    title?: string;
+    language?: string;
+    /**
+     * iOS only supports VTT, Android supports all 3
+     */
+    type?: WithDefault<string, 'srt'>;
+    selected?: boolean;
+  }[];
+}>;
+
+export type OnVideoTracksData = Readonly<{
+  videoTracks: {
+    index: Int32;
+    tracksId?: string;
+    codecs?: string;
+    width?: Float;
+    height?: Float;
+    bitrate?: Float;
+    selected?: boolean;
+  }[];
+}>;
+
 
 export interface VideoNativeProps extends ViewProps {
   // 这里申明的属性和方法，是需要传递给安卓 iOS 鸿蒙等本地native端使用
@@ -309,6 +345,9 @@ export interface VideoNativeProps extends ViewProps {
 
   onVideoPlaybackStateChanged?: DirectEventHandler<OnPlaybackStateChangedData>; // android only
   onVolumeChange?: DirectEventHandler<OnVolumeChangeData>; // android, ios
+  onAudioTracks?: DirectEventHandler<OnAudioTracksData>; // android
+  onTextTracks?: DirectEventHandler<OnTextTracksData>; // android
+  onVideoTracks?: DirectEventHandler<OnVideoTracksData>; // android
 }
 
 export type VideoComponentType = HostComponent<VideoNativeProps>

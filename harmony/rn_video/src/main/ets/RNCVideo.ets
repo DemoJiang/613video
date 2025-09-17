@@ -56,6 +56,34 @@ class RNCVideoSrc {
   requestHeaders?: RNCVideoSrcRequestHeaders[]
 }
 
+export class RNCAudioTracks {
+  index: number = -1
+  title?: string = ""  // 鸿蒙没有该字段
+  language?: string = ""
+  bitrate?: number = -1
+  type?: string = ""
+  selected?: boolean = false // 鸿蒙没有该字段
+}
+
+export class RNCVideoTracks {
+  index: number = -1
+  tracksId?: string = ""  // 鸿蒙没有该字段
+  codecs?: string = ""
+  width?: number = 0
+  height?: number = 0
+  bitrate?: number = 0
+  selected?: boolean = false  // 鸿蒙没有该字段
+}
+
+export class RNCTextTracks {
+  index: number = -1
+  title?: string = "" // 鸿蒙没有该字段
+  language?: string = ""
+  bitrate?: number = -1
+  type?: string = ""
+  selected?: boolean = false // 鸿蒙没有该字段
+}
+
 export interface RNCVideoProps extends ViewBaseProps {
   controls: boolean
   fullscreen:boolean
@@ -95,6 +123,9 @@ export interface IRNCVideo {
 
   onVideoPlaybackStateChanged: (isPlaying: boolean, isSeeking: boolean) => void  // 具体待实现，没有查明白鸿蒙的seeking
   onVolumeChange: (volume: number) => void
+  onAudioTracks: (audioTracks: RNCAudioTracks[]) => void
+  onVideoTracks: (audioTracks: RNCVideoTracks[]) => void
+  onTextTracks: (audioTracks: RNCTextTracks[]) => void
 }
 const TAG: string = 'RNOH in RNCVideo'
 @Component
@@ -367,6 +398,34 @@ export struct RNCVideo {
     }
   }
 
+  onAudioTracks(audioTracks: RNCAudioTracks[]): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onAudioTracks")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onAudioTracks",
+        audioTracks: audioTracks
+      })
+    }
+  }
+
+  onVideoTracks(videoTracks: RNCVideoTracks[]): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onVideoTracks")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onVideoTracks",
+        videoTracks: videoTracks
+      })
+    }
+  }
+
+  onTextTracks(textTracks: RNCTextTracks[]): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets emit onTextTracks")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onTextTracks",
+        textTracks: textTracks
+      })
+    }
   }
 
   async getFd(): Promise<void> {
