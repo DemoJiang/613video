@@ -238,11 +238,19 @@ export class VideoController {
         default:
           break;
       }
+      // 监听播放状态 --只关注播放状态，其余状态均按照没有播放状态处理
       if(state === AvplayerStatus.PLAYING){
         this.onVideoPlaybackStateChanged(true, false);
       } else {
         this.onVideoPlaybackStateChanged(false, false);
       }
+      // 设置屏幕常亮 --满足播放状态同时外部属性需要设置常亮时保持屏幕常亮，否则false
+      if(state === AvplayerStatus.PLAYING && this.mPreventsDisplaySleepDuringVideoPlayback){
+        globalThis.windowClass.setWindowKeepScreenOn(true);
+      } else {
+        globalThis.windowClass.setWindowKeepScreenOn(false);
+      }
+      // 获取媒体轨道信息 --包括音频、视频、字幕
       this.getTrackDescription();
     });
   }
@@ -510,13 +518,9 @@ export class VideoController {
     })
   }
 
-  /* 设置播放时屏幕不息屏 -- 暂无HM接口支持*/
+  /* 设置播放时屏幕不息屏*/
   setPreventsDisplaySleepDuringVideoPlaybackModifier(preventsDisplaySleepDuringVideoPlayback: boolean): void {
     this.mPreventsDisplaySleepDuringVideoPlayback = preventsDisplaySleepDuringVideoPlayback;
-
-    /* mMediaPlayer.setScreenOnWhilePlaying(mPreventsDisplaySleepDuringVideoPlayback);
-       setKeepScreenOn(mPreventsDisplaySleepDuringVideoPlayback);
-        */
   }
 
   /**
