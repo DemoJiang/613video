@@ -278,6 +278,42 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       [onPlaybackStateChanged],
     );
 
+    const enterPictureInPicture = useCallback(async () => {
+      if (!videoRef.current) {
+        console.warn('Video Component is not mounted');
+        return;
+      }
+
+      const _enterPictureInPicture = () => {
+        Commands.enterPictureInPictureCmd(videoRef);
+      };
+
+      Platform.select({
+        ios: _enterPictureInPicture,
+        android: _enterPictureInPicture,
+        harmony:_enterPictureInPicture,
+        default: () => {},
+      })();
+    }, []);
+
+    const exitPictureInPicture = useCallback(async () => {
+      if (!videoRef.current) {
+        console.warn('Video Component is not mounted');
+        return;
+      }
+
+      const _exitPictureInPicture = () => {
+        Commands.exitPictureInPictureCmd(videoRef);
+      };
+
+      Platform.select({
+        ios: _exitPictureInPicture,
+        android: _exitPictureInPicture,
+        harmony: _exitPictureInPicture,
+        default: () => {},
+      })();
+    }, []);
+
     const restoreUserInterfaceForPictureInPictureStopCompleted = useCallback(
       (restored: boolean) => {
         setRestoreUserInterfaceForPIPStopCompletionHandler(restored);
@@ -355,7 +391,7 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       (e: NativeSyntheticEvent<OnPictureInPictureStatusChangedData>) => {
         onPictureInPictureStatusChanged?.(e.nativeEvent);
       },
-      [onPictureInPictureStatusChanged]
+      [onPictureInPictureStatusChanged],
     );
 
     const _onAudioFocusChanged = useCallback((e: NativeSyntheticEvent<OnAudioFocusChangedData>) => {
@@ -409,6 +445,8 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         restoreUserInterfaceForPictureInPictureStopCompleted,
         pause,
         resume,
+        enterPictureInPicture,
+        exitPictureInPicture,
       }),
       [
         seek,
@@ -418,6 +456,8 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
         restoreUserInterfaceForPictureInPictureStopCompleted,
         pause,
         resume,
+        enterPictureInPicture,
+        exitPictureInPicture,
       ]
     );
 
@@ -461,7 +501,6 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
           onReadyForDisplay={_onReadyForDisplay}
           onPlaybackRateChange={_onPlaybackRateChange}
           onVideoAudioBecomingNoisy={onAudioBecomingNoisy}
-          onPictureInPictureStatusChanged={_onPictureInPictureStatusChanged}
           onRestoreUserInterfaceForPictureInPictureStop={
             onRestoreUserInterfaceForPictureInPictureStop
           }
@@ -472,6 +511,11 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
           onAudioTracks={onAudioTracks ? _onAudioTracks : undefined}
           onTextTracks={onTextTracks ? _onTextTracks : undefined}
           onVideoTracks={onVideoTracks ? _onVideoTracks : undefined}
+          onPictureInPictureStatusChanged={
+            onPictureInPictureStatusChanged
+              ? _onPictureInPictureStatusChanged
+              : undefined
+          }
         />
         {showPoster ? (
           <Image style={posterStyle} source={{ uri: poster }} />

@@ -62,6 +62,14 @@ export class VideoController {
     this.createAVPlayer();
   }
 
+  startPip(){
+    this.playerThis.startPip();
+  }
+
+  stopPip(){
+    this.playerThis.stopPip();
+  }
+
   /**
    * Creates a videoPlayer object.
    */

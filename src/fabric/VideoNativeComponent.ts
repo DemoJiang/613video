@@ -296,7 +296,7 @@ export interface VideoNativeProps extends ViewProps {
   muted?: boolean; // all ,false (default) - Don't mute audio
   paused?: boolean; // all , false (default) - Don't pause the media
   pictureInPicture?: boolean; // ios, false
-  playInBackground?: boolean; // Platforms: Android ExoPlayer, Android MediaPlayer, iOS || false (default) - Don't continue playing the media
+  playInBackground?: boolean; // ohos,false：源库6.13.0已经废弃，此处保留是为了兼容源库6.7.0
   playWhenInactive?: boolean; // ios, false
   // poster?: string; // all, rn框架能力，纯js实现，不用移植适配
   // posterResizeMode?: WithDefault<'contain' | 'center' | 'cover' | 'none' | 'repeat' | 'stretch', 'contain'>; // all 纯js
@@ -357,6 +357,8 @@ export interface NativeCommands {
   seek: (viewRef: React.ElementRef<VideoComponentType>, time: Float, tolerance?: Float) => void;
   // fullscreen: (viewRef: React.ElementRef<VideoComponentType>, isFullscreen: boolean) => void;
   setPlayerPauseStateCmd: (viewRef: React.ElementRef<VideoComponentType>, paused: boolean) => void;
+  enterPictureInPictureCmd: (viewRef: React.ElementRef<VideoComponentType>) => void;
+  exitPictureInPictureCmd: (viewRef: React.ElementRef<VideoComponentType>) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
@@ -366,6 +368,8 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     'seek',
     // 'fullscreen',
     'setPlayerPauseStateCmd',
+    'enterPictureInPictureCmd',
+    'exitPictureInPictureCmd'
   ],
 });
 

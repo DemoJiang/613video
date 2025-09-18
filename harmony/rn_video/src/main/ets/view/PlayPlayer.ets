@@ -50,6 +50,8 @@ export interface IPlayPlayer {
   videoJustifyContent: FlexAlign
   videoAlignItems: HorizontalAlign
   matrix: Matrix4.Matrix4Transit
+  startPip: () => void
+  stopPip: () => void
 }
 
 const TAG: string = 'RNOH in ctrl'
@@ -69,6 +71,10 @@ export struct PlayPlayer {
   @Consume('disableFocusVar') @Watch("onChanged") disableFocus: boolean;
   @Consume @Watch("onChanged") changedViewWidth: number;
   @Consume @Watch("onChanged") changedViewHeight: number;
+  @Consume
+  enterPictureInPictureOnLeave: boolean
+  @Consume
+  pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
   @Provide type: number = CommonConstants.TYPE_LOCAL; //TODO:luoxf 修改td
   @State bright: number = PlayConstants.PLAY_PAGE.BRIGHT;
@@ -107,6 +113,7 @@ export struct PlayPlayer {
   @State videoSrc: string = ''
   @State videoResizeMode: string = ''
   @Consume ('extFullscreenVar') extFullscreen: boolean;
+  private pipController?: PiPWindow.PiPController;
 
   dialogController: CustomDialogController | null = new CustomDialogController({
     builder: OverlayDialog({
@@ -150,6 +157,14 @@ export struct PlayPlayer {
     if (this.playVideoModel) {
       this.playVideoModel.initPlayerThis(this as IPlayPlayer);
     }
+
+    if (!this.pipController) {
+      await this.createPipController();
+    }
+    this.pipController?.setAutoStartEnabled(this.enterPictureInPictureOnLeave);
+    if(this.pictureInPicture){
+      this.startPip();
+    }
   }
 
   closeFsRawFd() {
@@ -177,6 +192,58 @@ export struct PlayPlayer {
     if (this.playVideoModel) {
       this.playVideoModel.release()
       this.closeFsRawFd()
+    }
+  }
+
+  async startPip() {
+    if (!this.pipController) {
+      await this.createPipController();
+    }
+    if (!this.pipController) {
+      Logger.info(`[${TAG}] pipController create error`);
+      return;
+    }
+    await this.pipController.startPiP();
+  }
+
+  async stopPip() {
+    if (!this.pipController) {
+      Logger.info(`[${TAG}] pipController is not exist`);
+      return;
+    }
+    await this.pipController.stopPiP();
+  }
+
+  async createPipController() {
+    try {
+      this.pipController = await PiPWindow.create({
+        context: this.getUIContext().getHostContext(),
+        componentController: this.xComponentController
+      });
+      // 监听画中画是否已经进入，即播放窗口已经缩小
+      this.pipController.on('stateChange', (state: PiPWindow.PiPState, reason: string) => {
+        if(state === PiPWindow.PiPState.STARTED){
+          this.playVideoModel?.onPictureInPictureStatusChanged(true);
+        } else {
+          this.playVideoModel?.onPictureInPictureStatusChanged(false);
+        }
+      });
+      // 监听画中画控制播放按钮，用以操作视频播放/暂停
+      this.pipController.on('controlPanelActionEvent', (event: PiPWindow.PiPActionEventType, status?: number) => {
+        switch (event) {
+          case 'playbackStateChanged':
+            if (status === 0) {
+              this.playVideoModel?.switchPlayOrPause(true);
+            } else {
+              this.playVideoModel?.switchPlayOrPause(false);
+            }
+            break;
+          default:
+            break;
+        }
+      });
+    } catch (e) {
+      Logger.error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
     }
   }
 

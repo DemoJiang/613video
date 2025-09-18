@@ -96,6 +96,8 @@ export interface RNCVideoProps extends ViewBaseProps {
   disableFocus: boolean
   preventsDisplaySleepDuringVideoPlayback: boolean
   rate: number
+  enterPictureInPictureOnLeave: boolean
+  pictureInPicture: boolean
 }
 
 export interface AutoLayoutViewState {}
@@ -106,6 +108,8 @@ export type VideoViewDescriptor = Descriptor<"RNCVideo", ViewBaseProps, AutoLayo
 
 const RNC_VIDEO_SEEK: string = 'seek'
 const RNC_VIDEO_CMD_STATE: string = 'setPlayerPauseStateCmd'
+const RNC_VIDEO_CMD_PIP_ENTER: string = 'enterPictureInPictureCmd'
+const RNC_VIDEO_CMD_PIP_EXIT: string = 'exitPictureInPictureCmd'
 
 export interface IRNCVideo {
   videoMargin: string
@@ -164,6 +168,10 @@ export struct RNCVideo {
   changedViewHeight: number = 0;
   @Provide
   isUserPaused: boolean = false
+  @Provide
+  enterPictureInPictureOnLeave: boolean = false
+  @Provide
+  pictureInPicture: boolean = false
   @Provide
   startSecond: number = 0
   @Provide
@@ -225,6 +233,10 @@ export struct RNCVideo {
             this.playVideoModel.setSeekTime(Number(args[0]));
           } else if (command === RNC_VIDEO_CMD_STATE){
             this.playVideoModel.switchPlayOrPause((args[0] as boolean))
+          } else if (command === RNC_VIDEO_CMD_PIP_ENTER){
+            this.playVideoModel.startPip();
+          } else if (command === RNC_VIDEO_CMD_PIP_EXIT){
+            this.playVideoModel.stopPip();
           }
         }))
     }
@@ -235,6 +247,8 @@ export struct RNCVideo {
     this.muted = this.descriptor.rawProps.muted
     this.paused = this.descriptor.rawProps.paused
     this.isUserPaused = this.descriptor.rawProps.paused
+    this.enterPictureInPictureOnLeave = this.descriptor.rawProps.enterPictureInPictureOnLeave
+    this.pictureInPicture = this.descriptor.rawProps.pictureInPicture
     this.controls = this.descriptor.rawProps.controls
     this.fullscreen = this.descriptor.rawProps.fullscreen
     this.rate = this.descriptor.rawProps.rate !== undefined? this.descriptor.rawProps.rate : media.PlaybackSpeed.SPEED_FORWARD_1_00_X
