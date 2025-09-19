@@ -58,7 +58,7 @@ class RNCVideoSrc {
 
 export class RNCAudioTracks {
   index: number = -1
-  title?: string = ""  // 鸿蒙没有该字段
+  title?: string = "" // 鸿蒙没有该字段
   language?: string = ""
   bitrate?: number = -1
   type?: string = ""
@@ -67,12 +67,12 @@ export class RNCAudioTracks {
 
 export class RNCVideoTracks {
   index: number = -1
-  tracksId?: string = ""  // 鸿蒙没有该字段
+  tracksId?: string = "" // 鸿蒙没有该字段
   codecs?: string = ""
   width?: number = 0
   height?: number = 0
   bitrate?: number = 0
-  selected?: boolean = false  // 鸿蒙没有该字段
+  selected?: boolean = false // 鸿蒙没有该字段
 }
 
 export class RNCTextTracks {
@@ -86,7 +86,7 @@ export class RNCTextTracks {
 
 export interface RNCVideoProps extends ViewBaseProps {
   controls: boolean
-  fullscreen:boolean
+  fullscreen: boolean
   src: RNCVideoSrc
   paused: boolean
   resizeMode: string
@@ -124,15 +124,17 @@ export interface IRNCVideo {
   onVideoPlaybackResume: () => void
   onVideoEnd: () => void
   onVideoError: (err: string) => void
-
-  onVideoPlaybackStateChanged: (isPlaying: boolean, isSeeking: boolean) => void  // 具体待实现，没有查明白鸿蒙的seeking
+  onVideoPlaybackStateChanged: (isPlaying: boolean, isSeeking: boolean) => void // 具体待实现，没有查明白鸿蒙的seeking
   onVolumeChange: (volume: number) => void
   onAudioTracks: (audioTracks: RNCAudioTracks[]) => void
   onVideoTracks: (audioTracks: RNCVideoTracks[]) => void
   onTextTracks: (audioTracks: RNCTextTracks[]) => void
   onPlaybackRateChange: (playbackRate: number) => void
+  onPictureInPictureStatusChanged: (isActive: boolean) => void
 }
+
 const TAG: string = 'RNOH in RNCVideo'
+
 @Component
 export struct RNCVideo {
   ctx!: RNOHContext;
@@ -144,8 +146,7 @@ export struct RNCVideo {
   @Provide index: number = 0;
   @Provide('mutedVar') muted: boolean = false;
   @Provide('fullscreenVar') fullscreen: boolean = false;
-
-  @Provide ('extFullscreenVar') @Watch("extFullscreenChanged") extFullscreen: boolean = false;
+  @Provide('extFullscreenVar') @Watch("extFullscreenChanged") extFullscreen: boolean = false;
   @Provide('repeatVar') repeat: boolean = false;
   @Provide('pausedVar') paused: boolean = false;
   @Provide('resizeModeVar') resizeMode: string = "none"; /* */
@@ -228,14 +229,14 @@ export struct RNCVideo {
     if (this.ctx) {
       this.callbackList.push(this.ctx.componentCommandReceiver.registerCommandCallback(
         this.tag,
-        (command, args: (string | number)[]) => {
+        (command, args: (string | number | boolean)[]) => {
           if (command === RNC_VIDEO_SEEK) {
             this.playVideoModel.setSeekTime(Number(args[0]));
-          } else if (command === RNC_VIDEO_CMD_STATE){
+          } else if (command === RNC_VIDEO_CMD_STATE) {
             this.playVideoModel.switchPlayOrPause((args[0] as boolean))
-          } else if (command === RNC_VIDEO_CMD_PIP_ENTER){
+          } else if (command === RNC_VIDEO_CMD_PIP_ENTER) {
             this.playVideoModel.startPip();
-          } else if (command === RNC_VIDEO_CMD_PIP_EXIT){
+          } else if (command === RNC_VIDEO_CMD_PIP_EXIT) {
             this.playVideoModel.stopPip();
           }
         }))
@@ -251,10 +252,11 @@ export struct RNCVideo {
     this.pictureInPicture = this.descriptor.rawProps.pictureInPicture
     this.controls = this.descriptor.rawProps.controls
     this.fullscreen = this.descriptor.rawProps.fullscreen
-    this.rate = this.descriptor.rawProps.rate !== undefined? this.descriptor.rawProps.rate : media.PlaybackSpeed.SPEED_FORWARD_1_00_X
+    this.rate = this.descriptor.rawProps.rate !== undefined ? this.descriptor.rawProps.rate :
+    media.PlaybackSpeed.SPEED_FORWARD_1_00_X
     this.resizeMode = this.descriptor.rawProps.resizeMode
-    this.repeat = this.descriptor.rawProps.repeat !== undefined?this.descriptor.rawProps.repeat:false;
-    this.volume = this.descriptor.rawProps.volume !== undefined?this.descriptor.rawProps.volume:1.0;
+    this.repeat = this.descriptor.rawProps.repeat !== undefined ? this.descriptor.rawProps.repeat : false;
+    this.volume = this.descriptor.rawProps.volume !== undefined ? this.descriptor.rawProps.volume : 1.0;
     this.volume = this.muted ? 0 : this.volume;
     this.srcParam = this.descriptor.rawProps.src.uri
     this.disableFocus = this.descriptor.rawProps.disableFocus
@@ -379,10 +381,10 @@ export struct RNCVideo {
       })
     }
   }
+
   extFullscreenChanged(changedPropertyName: string) {
 
-    if(this.extFullscreen)
-    {
+    if (this.extFullscreen) {
       if (this.ctx) {
         this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
           type: "videoFullscreenPlayerDidDismiss"
@@ -391,6 +393,7 @@ export struct RNCVideo {
       this.extFullscreen = false
 
     }
+  }
 
   onVideoPlaybackStateChanged(isPlaying: boolean, isSeeking: boolean): void {
     if (this.ctx) {
@@ -453,6 +456,16 @@ export struct RNCVideo {
     }
   }
 
+  onPictureInPictureStatusChanged(isActive: boolean): void {
+    if (this.ctx) {
+      console.log("RNCVideo.ets--------> RNCVideo.ets emit onPictureInPictureStatusChanged")
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onPlaybackRateChange",
+        isActive: isActive
+      })
+    }
+  }
+
   async getFd(): Promise<void> {
     // Logger.debug(TAG, `getFd, ${(this.src)}`);
   }
@@ -472,7 +485,7 @@ export struct RNCVideo {
   }
 
   build() {
-    Column(){
+    Column() {
       RNViewBase({ ctx: this.ctx, tag: this.tag }) {
         PlayPlayer({ playVideoModel: this.playVideoModel, viewWidth: this.viewWidth, viewHeight: this.viewHeight })
           .align(Alignment.Center)
@@ -502,6 +515,4 @@ export struct RNCVideo {
 
     }
   }
-
-
 }

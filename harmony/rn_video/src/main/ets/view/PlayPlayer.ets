@@ -30,7 +30,7 @@ import Matrix4 from '@ohos.matrix4'
 import mediaquery from '@ohos.mediaquery'
 import fs from '@ohos.file.fs';
 import { BusinessError } from '@kit.BasicServicesKit';
-import { display } from '@kit.ArkUI';
+import { display, PiPWindow } from '@kit.ArkUI';
 import {OverlayDialog} from './OverlayDialog'
 
 export interface IPlayPlayer {
@@ -139,7 +139,7 @@ export struct PlayPlayer {
     cornerRadius: 0,
   })
 
-  aboutToAppear(): void {
+  async aboutToAppear(): Promise<void> {
     if (this.controls == true) {
       this.setIsVisibility(this.controls)
       this.resetInactivityTimer()

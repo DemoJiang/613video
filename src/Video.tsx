@@ -47,7 +47,6 @@ import type {
 import type { StyleProp, ImageStyle, NativeSyntheticEvent } from "react-native";
 import type {
   VideoComponentType,
-  NativeCommands,
   OnLoadData,
   OnGetLicenseData,
   OnLoadStartData,
@@ -64,10 +63,14 @@ import type {
 import type { ReactVideoProps } from "./types/video";
 import { generateHeaderForNative, resolveAssetSourceForVideo } from "./utils";
 
-export interface VideoRef extends Omit<NativeCommands,  'seek' | 'fullscreen'> {
+export interface VideoRef {
   seek: (time: number, tolerance?: number) => void;
   presentFullscreenPlayer: () => void;
   dismissFullscreenPlayer: () => void;
+  resume: () => void;
+  pause: () => void;
+  enterPictureInPicture: () => void;
+  exitPictureInPicture: () => void;
 }
 
 const Video = forwardRef < VideoRef, ReactVideoProps >(
@@ -258,13 +261,12 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
     }, []);
 
     const pause = useCallback(() => {
-      return Commands.setPlayerPauseStateCmd(
-        videoRef.current,
-        true,
-      );
+      if (!videoRef.current) return;
+      return Commands.setPlayerPauseStateCmd(videoRef.current, true);
     }, []);
 
     const resume = useCallback(() => {
+      if (!videoRef.current) return;
       return Commands.setPlayerPauseStateCmd(
         videoRef.current,
         false,
@@ -285,14 +287,14 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       }
 
       const _enterPictureInPicture = () => {
-        Commands.enterPictureInPictureCmd(videoRef);
+        if (!videoRef.current) return;
+        Commands.enterPictureInPictureCmd(videoRef.current);
       };
 
       Platform.select({
         ios: _enterPictureInPicture,
         android: _enterPictureInPicture,
-        harmony:_enterPictureInPicture,
-        default: () => {},
+        default: () => {_enterPictureInPicture},
       })();
     }, []);
 
@@ -303,14 +305,14 @@ const Video = forwardRef < VideoRef, ReactVideoProps >(
       }
 
       const _exitPictureInPicture = () => {
-        Commands.exitPictureInPictureCmd(videoRef);
+        if (!videoRef.current) return;
+        Commands.exitPictureInPictureCmd(videoRef.current);
       };
 
       Platform.select({
         ios: _exitPictureInPicture,
         android: _exitPictureInPicture,
-        harmony: _exitPictureInPicture,
-        default: () => {},
+        default: () => {_exitPictureInPicture},
       })();
     }, []);
 

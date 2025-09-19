@@ -29,10 +29,10 @@ import { AvplayerStatus, CommonConstants, Events, ResizeMode, CurrentTime } from
 import { PlayConstants } from '../common/constants/PlayConstants';
 import { AudioTracksBean, VideoTracksBean } from '../common/bean/AudioTracksBean';
 import { IPlayPlayer } from '../view/PlayPlayer';
-import { IRNCVideo } from '../RNCVideo';
+import { IRNCVideo, RNCAudioTracks, RNCTextTracks, RNCVideoTracks } from '../RNCVideo';
 import Matrix4 from '@ohos.matrix4'
 import { display } from '@kit.ArkUI';
-import { deviceInfo } from '@kit.BasicServicesKit'
+import { BusinessError, deviceInfo } from '@kit.BasicServicesKit'
 
 const TAG: string = 'RNOH in ctrl'
 
@@ -426,6 +426,10 @@ export class VideoController {
     }
     this.playSpeed = playSpeed;
     this.avPlayer?.setSpeed(this.playSpeed);
+  }
+
+  onPictureInPictureStatusChanged(isActive: boolean): void{
+    this.playPageThis.onPictureInPictureStatusChanged(isActive);
   }
 
   /**

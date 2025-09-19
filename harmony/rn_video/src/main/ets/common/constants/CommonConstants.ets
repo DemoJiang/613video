@@ -132,6 +132,8 @@ export class CommonConstants {
    * Operation status of video player 4.
    */
   static readonly OPERATE_STATE: Array<string> = ['prepared','playing', 'paused', 'completed'];
+
+  static readonly GET_AUDIO_TRACKS: Array<string> = ['prepared','playing', 'paused'];
 }
 
 /**
