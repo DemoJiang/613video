@@ -124,6 +124,7 @@ export interface IRNCVideo {
   onVideoPlaybackResume: () => void
   onVideoEnd: () => void
   onVideoError: (err: string) => void
+  //=====6.13.0
   onVideoPlaybackStateChanged: (isPlaying: boolean, isSeeking: boolean) => void // 具体待实现，没有查明白鸿蒙的seeking
   onVolumeChange: (volume: number) => void
   onAudioTracks: (audioTracks: RNCAudioTracks[]) => void

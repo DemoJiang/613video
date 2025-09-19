@@ -58,7 +58,7 @@
     "scripts": {
         "prepack": "bob build",
         "lint": "yarn eslint *.js",
-        "codegen-lib": "react-native codegen-lib-harmony --no-safety-check --npm-package-name react-native-video --cpp-output-path ./harmony/rn_video/src/main/cpp/generated --ets-output-path ./harmony/rn_video/src/main/ets/generated --arkts-components-spec-paths ./src/"
+        "codegen-lib": "react-native codegen-lib-harmony --no-safety-check --npm-package-name react-native-video --cpp-output-path ./harmony/rn_video/src/main/cpp/generated --ets-output-path ./harmony/rn_video/src/main/ets/generated --arkts-components-spec-paths ./src"
     },
     "files": [
         "src",
