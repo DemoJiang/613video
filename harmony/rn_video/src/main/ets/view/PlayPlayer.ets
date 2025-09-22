@@ -73,7 +73,7 @@ export struct PlayPlayer {
   @Consume @Watch("onChanged") changedViewHeight: number;
   @Consume
   enterPictureInPictureOnLeave: boolean
-  @Consume
+  @Consume @Watch("onPIPChanged")
   pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
   @Provide type: number = CommonConstants.TYPE_LOCAL; //TODO:luoxf 修改td
@@ -224,7 +224,7 @@ export struct PlayPlayer {
       this.pipController.on('stateChange', (state: PiPWindow.PiPState, reason: string) => {
         if(state === PiPWindow.PiPState.STARTED){
           this.playVideoModel?.onPictureInPictureStatusChanged(true);
-        } else {
+        } else  if(state === PiPWindow.PiPState.STOPPED) {
           this.playVideoModel?.onPictureInPictureStatusChanged(false);
         }
       });
@@ -244,6 +244,14 @@ export struct PlayPlayer {
       });
     } catch (e) {
       Logger.error(`Failed to create pip controller. Cause:${e.code}, message:${e.message}`);
+    }
+  }
+  
+  onPIPChanged(){
+    if(this.pictureInPicture){
+      this.startPip();
+    } else {
+      this.stopPip();
     }
   }
 

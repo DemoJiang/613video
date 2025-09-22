@@ -461,7 +461,7 @@ export struct RNCVideo {
     if (this.ctx) {
       console.log("RNCVideo.ets--------> RNCVideo.ets emit onPictureInPictureStatusChanged")
       this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onPlaybackRateChange",
+        type: "onPictureInPictureStatusChanged",
         isActive: isActive
       })
     }

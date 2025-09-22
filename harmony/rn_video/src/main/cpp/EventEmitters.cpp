@@ -258,6 +258,8 @@ void RNCVideoEventEmitter::onGetLicense(OnGetLicense event) const {
 void RNCVideoEventEmitter::onVideoPlaybackStateChanged(OnVideoPlaybackStateChanged event) const {
     dispatchEvent("videoPlaybackStateChanged",[event=std::move(event)](jsi::Runtime &runtime){
         auto payload = jsi::Object(runtime);
+        payload.setProperty(runtime, "isPlaying", event.isPlaying);
+        payload.setProperty(runtime, "isSeeking", event.isSeeking);
         return payload;
     });
 }
@@ -265,6 +267,7 @@ void RNCVideoEventEmitter::onVideoPlaybackStateChanged(OnVideoPlaybackStateChang
 void RNCVideoEventEmitter::onVolumeChange(OnVolumeChange event) const {
     dispatchEvent("volumeChange",[event=std::move(event)](jsi::Runtime &runtime){
         auto payload = jsi::Object(runtime);
+        payload.setProperty(runtime,"volume",event.volume);
         return payload;
     });
 }

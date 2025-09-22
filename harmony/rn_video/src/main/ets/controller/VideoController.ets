@@ -516,9 +516,8 @@ export class VideoController {
     }
 
     this.avPlayer.on('volumeChange', (vol: number) => {
-      Logger.debug(TAG, `volumeChange success,and new volume is= ${vol}}`);
+      Logger.debug(TAG, `volumeChange success,and new volume is= ${vol}`);
       this.onVolumeChange(vol);
-      this.avPlayer.off('volumeChange');
     })
   }
 
