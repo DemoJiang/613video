@@ -67,7 +67,7 @@ export class RNCAudioTracks {
 
 export class RNCVideoTracks {
   index: number = -1
-  tracksId?: string = "" // 鸿蒙没有该字段
+  tracksId?: string = ""
   codecs?: string = ""
   width?: number = 0
   height?: number = 0

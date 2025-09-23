@@ -266,7 +266,7 @@ public:
                         auto subVideoTracks = arkJs.getArrayElement(videoTracks, i);
                         auto _subVideoTracks = arkJs.getObject(subVideoTracks);
                         int index = (int)arkJs.getInteger(_subVideoTracks.getProperty("index"));
-                        std::string trackId = arkJs.getString(_subVideoTracks.getProperty("trackId"));
+                        std::string trackId = arkJs.getString(_subVideoTracks.getProperty("tracksId"));
                         std::string codecs = arkJs.getString(_subVideoTracks.getProperty("codecs"));
                         float width = (float)arkJs.getDouble(_subVideoTracks.getProperty("width"));
                         float height = (float)arkJs.getDouble(_subVideoTracks.getProperty("height"));

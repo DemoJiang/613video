@@ -33,6 +33,7 @@ import { IRNCVideo, RNCAudioTracks, RNCTextTracks, RNCVideoTracks } from '../RNC
 import Matrix4 from '@ohos.matrix4'
 import { display } from '@kit.ArkUI';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit'
+import { window } from '@kit.ArkUI';
 
 const TAG: string = 'RNOH in ctrl'
 
@@ -246,12 +247,28 @@ export class VideoController {
       }
       // 设置屏幕常亮 --满足播放状态同时外部属性需要设置常亮时保持屏幕常亮，否则false
       if(state === AvplayerStatus.PLAYING && this.mPreventsDisplaySleepDuringVideoPlayback){
-        globalThis.windowClass.setWindowKeepScreenOn(true);
+        this.setScreenState(true);
       } else {
-        globalThis.windowClass.setWindowKeepScreenOn(false);
+        this.setScreenState(false);
       }
       // 获取媒体轨道信息 --包括音频、视频、字幕
       this.getTrackDescription();
+    });
+  }
+
+  setScreenState(isKeepScreenOn: boolean) {
+    // 获取当前窗口实例
+    window.getLastWindow(getContext(this)).then((curWindow) => {
+      // 设置屏幕是否常亮
+      curWindow.setWindowKeepScreenOn(isKeepScreenOn, (err: BusinessError) => {
+        if (err.code) {
+          console.error(`Failed to set the screen. Cause code: ${err.code}, message: ${err.message}`);
+          return;
+        }
+        console.info(`Succeeded in setting the screen ${isKeepScreenOn}.`);
+      });
+    }).catch((err: string) => {
+      console.error(`Failed to obtain the top window.. Cause code:: ${err}`);
     });
   }
 
@@ -274,9 +291,6 @@ export class VideoController {
 
     this.avPlayer.getSelectedTracks().then((arrList: Array<number>) => {
       console.info('Succeeded in getting SelectedTracks:' + arrList.length);
-      for(let i = 0; i < arrList.length; i++){
-        console.info('jk------------> audio value index select:' + arrList[i]);
-      }
     }).catch((error: BusinessError) => {
       console.error(`Failed to get SelectedTracks, error:${error}`);
     });
@@ -292,32 +306,34 @@ export class VideoController {
           let type = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_TYPE];
           if(type == 0){
             let audioTrc = new RNCAudioTracks();
-            let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+            // 暂时屏蔽，鸿蒙API中TrackInfo中的track_id字段和业务中的轨道索引需明确
+            //let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
             let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
             let bitrate = arrList[i][media.MediaDescriptionKey.MD_KEY_BITRATE] as number;
 
-            audioTrc.index = index;
+            audioTrc.index = i;
             audioTrc.language = language;
             audioTrc.bitrate = bitrate;
             audioTrc.type = "audio_track";
             audioTracksArr.push(audioTrc);
 
-            console.info('音频轨道信息 index: ' + index + ", type: " + type + ", language: " + language + ", bitrate: " + bitrate);
+            console.info('音频轨道信息 index: ' + i + ", type: " + type + ", language: " + language + ", bitrate: " + bitrate);
           } else if (type == 1){
             let videoTrc = new RNCVideoTracks();
-            let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+            let tracksId = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
             let codec = arrList[i][media.MediaDescriptionKey.MD_KEY_CODEC_MIME] as string;
             let width = arrList[i][media.MediaDescriptionKey.MD_KEY_WIDTH] as number;
             let height = arrList[i][media.MediaDescriptionKey.MD_KEY_HEIGHT] as number;
             let bitrate = arrList[i][media.MediaDescriptionKey.MD_KEY_BITRATE] as number;
 
-            videoTrc.index = index;
+            videoTrc.index = i;
+            videoTrc.tracksId = tracksId.toString();
             videoTrc.codecs = codec;
             videoTrc.width = width;
             videoTrc.height = height;
             videoTrc.bitrate = bitrate;
             videoTracksArr.push(videoTrc);
-            console.info('视频轨道信息 index: ' + index + ", codec: " + codec + ", width: " + width + ", height: " + height  + ", bitrate: " + bitrate);
+            console.info('视频轨道信息 tracksId: ' + tracksId + ", codec: " + codec + ", width: " + width + ", height: " + height  + ", bitrate: " + bitrate);
           } else if (type == 2){
             let textTrc = new RNCTextTracks();
             let index = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
