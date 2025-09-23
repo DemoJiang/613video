@@ -29,6 +29,18 @@ import { VideoBean } from '../bean/VideoBean';
  */
 export class CommonConstants {
   /**
+   * 轨道类型--音频
+   */
+  static readonly TRACK_TYPE_AUDIO: number = 0;
+  /**
+   * 轨道类型--视频
+   */
+  static readonly TRACK_TYPE_VIDEO: number = 1;
+  /**
+   * 轨道类型--字幕
+   */
+  static readonly TRACK_TYPE_TEXT: number = 2;
+  /**
    * Full percent.
    */
   static readonly FULL_PERCENT: string = '100%';

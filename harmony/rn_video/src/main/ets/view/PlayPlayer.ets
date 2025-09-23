@@ -32,6 +32,7 @@ import fs from '@ohos.file.fs';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { display, PiPWindow } from '@kit.ArkUI';
 import {OverlayDialog} from './OverlayDialog'
+import { RNCSelectTrack } from '../RNCVideo';
 
 export interface IPlayPlayer {
   muted: boolean
@@ -50,6 +51,9 @@ export interface IPlayPlayer {
   videoJustifyContent: FlexAlign
   videoAlignItems: HorizontalAlign
   matrix: Matrix4.Matrix4Transit
+  selectedAudioTrack: RNCSelectTrack
+  selectedVideoTrack: RNCSelectTrack
+  selectedTextTrack: RNCSelectTrack
   startPip: () => void
   stopPip: () => void
 }
@@ -73,6 +77,12 @@ export struct PlayPlayer {
   @Consume @Watch("onChanged") changedViewHeight: number;
   @Consume
   enterPictureInPictureOnLeave: boolean
+  @Consume
+  selectedAudioTrack: RNCSelectTrack
+  @Consume
+  selectedVideoTrack: RNCSelectTrack
+  @Consume
+  selectedTextTrack: RNCSelectTrack
   @Consume @Watch("onPIPChanged")
   pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
@@ -164,6 +174,25 @@ export struct PlayPlayer {
     this.pipController?.setAutoStartEnabled(this.enterPictureInPictureOnLeave);
     if(this.pictureInPicture){
       this.startPip();
+    }
+
+    this.initSelectTrack();
+  }
+
+  initSelectTrack(){
+    // 选择音频轨道相关
+    if (this.selectedAudioTrack) {
+      this.playVideoModel?.selectAudioTrack(this.selectedAudioTrack);
+    }
+
+    // 选择视频轨道相关
+    if (this.selectedVideoTrack) {
+      this.playVideoModel?.selectVideoTrack(this.selectedAudioTrack);
+    }
+
+    // 选择字幕轨道相关
+    if (this.selectedTextTrack) {
+      this.playVideoModel?.selectTextTrack(this.selectedAudioTrack);
     }
   }
 

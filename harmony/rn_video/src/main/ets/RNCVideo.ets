@@ -84,6 +84,11 @@ export class RNCTextTracks {
   selected?: boolean = false // 鸿蒙没有该字段
 }
 
+export class RNCSelectTrack {
+  type?: string = ""
+  value?: string = ""
+}
+
 export interface RNCVideoProps extends ViewBaseProps {
   controls: boolean
   fullscreen: boolean
@@ -98,6 +103,9 @@ export interface RNCVideoProps extends ViewBaseProps {
   rate: number
   enterPictureInPictureOnLeave: boolean
   pictureInPicture: boolean
+  selectedAudioTrack: RNCSelectTrack
+  selectedVideoTrack: RNCSelectTrack
+  selectedTextTrack: RNCSelectTrack
 }
 
 export interface AutoLayoutViewState {}
@@ -172,6 +180,12 @@ export struct RNCVideo {
   isUserPaused: boolean = false
   @Provide
   enterPictureInPictureOnLeave: boolean = false
+  @Provide
+  selectedAudioTrack: RNCSelectTrack = {}
+  @Provide
+  selectedVideoTrack: RNCSelectTrack = {}
+  @Provide
+  selectedTextTrack: RNCSelectTrack = {}
   @Provide
   pictureInPicture: boolean = false
   @Provide
@@ -262,6 +276,9 @@ export struct RNCVideo {
     this.srcParam = this.descriptor.rawProps.src.uri
     this.disableFocus = this.descriptor.rawProps.disableFocus
     this.preventsDisplaySleepDuringVideoPlayback = this.descriptor.rawProps.preventsDisplaySleepDuringVideoPlayback
+    this.selectedAudioTrack = this.descriptor.rawProps.selectedAudioTrack
+    this.selectedVideoTrack = this.descriptor.rawProps.selectedVideoTrack
+    this.selectedTextTrack = this.descriptor.rawProps.selectedTextTrack
     this.viewWidth = this.descriptor.layoutMetrics.frame.size.width
     this.viewHeight = this.descriptor.layoutMetrics.frame.size.height
     this.changedViewWidth = this.viewWidth

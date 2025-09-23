@@ -29,7 +29,7 @@ import { AvplayerStatus, CommonConstants, Events, ResizeMode, CurrentTime } from
 import { PlayConstants } from '../common/constants/PlayConstants';
 import { AudioTracksBean, VideoTracksBean } from '../common/bean/AudioTracksBean';
 import { IPlayPlayer } from '../view/PlayPlayer';
-import { IRNCVideo, RNCAudioTracks, RNCTextTracks, RNCVideoTracks } from '../RNCVideo';
+import { IRNCVideo, RNCAudioTracks, RNCSelectTrack, RNCTextTracks, RNCVideoTracks } from '../RNCVideo';
 import Matrix4 from '@ohos.matrix4'
 import { display } from '@kit.ArkUI';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit'
@@ -280,6 +280,81 @@ export class VideoController {
     this.playPageThis.onVolumeChange(volume);
   }
 
+  /**
+   * 音频轨道选择
+   * @param selectedAudioTrack
+   */
+  selectAudioTrack(selectedAudioTrack: RNCSelectTrack){
+    if (selectedAudioTrack == null || selectedAudioTrack.type == '' || selectedAudioTrack.type == undefined ||
+      selectedAudioTrack.value == '' || selectedAudioTrack.value == undefined) {
+      return;
+    }
+    this.setSelectTrack(CommonConstants.TRACK_TYPE_AUDIO, selectedAudioTrack.type, selectedAudioTrack.value)
+  }
+
+  /**
+   * 视频轨道选择
+   * @param selectedVideoTrack
+   */
+  selectVideoTrack(selectedVideoTrack: RNCSelectTrack){
+    if (selectedVideoTrack == null || selectedVideoTrack.type == '' || selectedVideoTrack.type == undefined ||
+      selectedVideoTrack.value == '' || selectedVideoTrack.value == undefined) {
+      return;
+    }
+    this.setSelectTrack(CommonConstants.TRACK_TYPE_VIDEO, selectedVideoTrack.type, selectedVideoTrack.value)
+  }
+
+  /**
+   * 字幕轨道选择
+   * @param selectedTextTrack
+   */
+  selectTextTrack(selectedTextTrack: RNCSelectTrack){
+    if (selectedTextTrack == null || selectedTextTrack.type == '' || selectedTextTrack.type == undefined ||
+      selectedTextTrack.value == '' || selectedTextTrack.value == undefined) {
+      return;
+    }
+    this.setSelectTrack(CommonConstants.TRACK_TYPE_TEXT, selectedTextTrack.type, selectedTextTrack.value)
+  }
+
+  setSelectTrack(trackType: number, filterType: string, filterValue: string){
+    /**
+     * 1、先获取所有音视频字幕轨道信息；
+     * 2、根据轨道信息的track_type先区分音频0、视频1、字幕2轨道；
+     * 3、然后再根据入参filterType决定筛选条件
+     * 4、然后再根据入参filterValue确定轨道索引
+     * 5、最后调用avPlayer.selectTrack(trackId)方法进行音视频轨道切换
+     */
+    this.avPlayer.getTrackDescription((error: BusinessError, arrList: Array<media.MediaDescription>) => {
+      if ((arrList) != null) {
+        for (let i = 0; i < arrList.length; i++) {
+          // type: 0->音频   1->视频   2->字幕
+          let type = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_TYPE] as number;
+          if(type == trackType){
+            // 处理相关逻辑
+            if(filterType == 'system'){
+
+            } else if(filterType == 'disabled'){
+
+            } else if(filterType == 'title'){
+
+            } else if(filterType == 'language'){
+              let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
+              if (language === filterValue) {
+                let trackId = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+                this.avPlayer.selectTrack(trackId);
+              }
+            } else if(filterType == 'index'){
+              let trackId = (arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number).toString();
+              if (trackId === filterValue) {
+                this.avPlayer.selectTrack(parseInt(trackId));
+              }
+            }
+          }
+        }
+      }
+    })
+  }
+
    /**
    * 获取音视频轨道信息
    */
@@ -317,6 +392,7 @@ export class VideoController {
             audioTrc.type = "audio_track";
             audioTracksArr.push(audioTrc);
 
+            this.playPageThis.onAudioTracks(audioTracksArr);
             console.info('音频轨道信息 index: ' + i + ", type: " + type + ", language: " + language + ", bitrate: " + bitrate);
           } else if (type == 1){
             let videoTrc = new RNCVideoTracks();
@@ -333,6 +409,8 @@ export class VideoController {
             videoTrc.height = height;
             videoTrc.bitrate = bitrate;
             videoTracksArr.push(videoTrc);
+
+            this.playPageThis.onVideoTracks(videoTracksArr);
             console.info('视频轨道信息 tracksId: ' + tracksId + ", codec: " + codec + ", width: " + width + ", height: " + height  + ", bitrate: " + bitrate);
           } else if (type == 2){
             let textTrc = new RNCTextTracks();
@@ -345,12 +423,11 @@ export class VideoController {
             textTrc.bitrate = bitrate;
             textTrc.type = "text_track";
             textTracksArr.push(textTrc);
+
+            this.playPageThis.onTextTracks(textTracksArr);
+            console.info('字幕轨道信息 index: ' + index + ", language: " + language + ", bitrate: " + bitrate);
           }
         }
-
-        this.playPageThis.onVideoTracks(videoTracksArr);
-        this.playPageThis.onAudioTracks(audioTracksArr);
-        this.playPageThis.onTextTracks(textTracksArr);
       } else {
         console.error(`Failed to do getTrackDescription, error:${error}`);
       }
