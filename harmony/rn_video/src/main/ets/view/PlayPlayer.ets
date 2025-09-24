@@ -56,6 +56,7 @@ export interface IPlayPlayer {
   selectedTextTrack: RNCSelectTrack
   startPip: () => void
   stopPip: () => void
+  progressUpdateInterval: number
 }
 
 const TAG: string = 'RNOH in ctrl'
@@ -87,6 +88,8 @@ export struct PlayPlayer {
   preferredForwardBufferDuration: number
   @Consume
   fullscreenAutorotate: boolean
+  @Consume
+  progressUpdateInterval: number
   @Consume
   fullscreenOrientation: string
   @Consume @Watch("onPIPChanged")

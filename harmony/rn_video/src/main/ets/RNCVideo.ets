@@ -109,6 +109,7 @@ export interface RNCVideoProps extends ViewBaseProps {
   preferredForwardBufferDuration: number
   fullscreenAutorotate: boolean
   fullscreenOrientation: string
+  progressUpdateInterval: number
 }
 
 export interface AutoLayoutViewState {}
@@ -199,6 +200,8 @@ export struct RNCVideo {
   fullscreenAutorotate: boolean = true
   @Provide
   fullscreenOrientation: string = 'all'
+  @Provide
+  progressUpdateInterval: number = 250.0
   @Provide
   duration: number = 0
   private callbackList: Array<() => void> = []
@@ -291,6 +294,7 @@ export struct RNCVideo {
     this.preferredForwardBufferDuration = this.descriptor.rawProps.preferredForwardBufferDuration
     this.fullscreenAutorotate = this.descriptor.rawProps.fullscreenAutorotate !== undefined ? this.descriptor.rawProps.fullscreenAutorotate : true
     this.fullscreenOrientation = this.descriptor.rawProps.fullscreenOrientation !== undefined ? this.descriptor.rawProps.fullscreenOrientation : 'all'
+    this.progressUpdateInterval = this.descriptor.rawProps.progressUpdateInterval !== undefined ? this.descriptor.rawProps.progressUpdateInterval : 250.0
     this.viewWidth = this.descriptor.layoutMetrics.frame.size.width
     this.viewHeight = this.descriptor.layoutMetrics.frame.size.height
     this.changedViewWidth = this.viewWidth
