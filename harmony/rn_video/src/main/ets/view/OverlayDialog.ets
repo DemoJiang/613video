@@ -14,6 +14,7 @@ export struct OverlayDialog {
   @Link videoSrc: string
   @Link videoResizeMode:string
   @Link fullscreenAutorotate:boolean
+  @Link fullscreenOrientation:string
   @State previewUri: string = 'common/videoIcon.png'
   @State curRate: PlaybackSpeed = PlaybackSpeed.Speed_Forward_1_00_X
   @State durationTime: number = 0
@@ -26,6 +27,7 @@ export struct OverlayDialog {
   inactivityTimerId: number | undefined; // 定时器ID
   INACTIVITY_THRESHOLD = 5000
   @Consume @Watch("ModalVisible") isModalVisible:boolean
+  private context = getContext(this) as common.UIAbilityContext
 
   controller?: CustomDialogController
   // 若尝试在CustomDialog中传入多个其他的Controller，以实现在CustomDialog中打开另一个或另一些CustomDialog，那么此处需要将指向自己的controller放在所有controller的后面
@@ -33,18 +35,27 @@ export struct OverlayDialog {
   }
   confirm: () => void = () => {
   }
+
   aboutToAppear(): void {
     console.info('video_test 弹窗拉起')
-    const context = getContext(this) as common.UIAbilityContext
-    const win = context.windowStage?.getMainWindowSync()
+    let win = this.context.windowStage?.getMainWindowSync()
     if (this.fullscreenAutorotate) {
-      win.setPreferredOrientation(window.Orientation.AUTO_ROTATION);
+      if(this.fullscreenOrientation === 'all'){
+        win.setPreferredOrientation(window.Orientation.AUTO_ROTATION);
+      } else if (this.fullscreenOrientation === 'landscape') {
+        win.setPreferredOrientation(window.Orientation.AUTO_ROTATION_LANDSCAPE);
+      } else if (this.fullscreenOrientation === 'portrait') {
+        win.setPreferredOrientation(window.Orientation.AUTO_ROTATION_PORTRAIT);
+      }
     } else {
       win.setPreferredOrientation(window.Orientation.PORTRAIT);
     }
   }
   aboutToDisappear(): void {
     this.videoController.stop()
+    // 退出全屏模式时确保屏幕为竖屏
+    let win = this.context.windowStage?.getMainWindowSync()
+    win.setPreferredOrientation(window.Orientation.PORTRAIT);
   }
   setIsVisibility(isShow: boolean) {
     if (isShow) {

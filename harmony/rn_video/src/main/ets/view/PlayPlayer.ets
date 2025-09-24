@@ -87,6 +87,8 @@ export struct PlayPlayer {
   preferredForwardBufferDuration: number
   @Consume
   fullscreenAutorotate: boolean
+  @Consume
+  fullscreenOrientation: string
   @Consume @Watch("onPIPChanged")
   pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
@@ -127,6 +129,7 @@ export struct PlayPlayer {
   @State videoSrc: string = ''
   @State videoResizeMode: string = ''
   @State fullscreenAutorotatePre: boolean = true
+  @State fullscreenOrientationPre: string = 'all'
   @Consume ('extFullscreenVar') extFullscreen: boolean;
   private pipController?: PiPWindow.PiPController;
 
@@ -136,7 +139,8 @@ export struct PlayPlayer {
       confirm: ()=> { this.onAccept() },
       videoSrc: $videoSrc,
       videoResizeMode: $videoResizeMode,
-      fullscreenAutorotate: $fullscreenAutorotatePre
+      fullscreenAutorotate: $fullscreenAutorotatePre,
+      fullscreenOrientation: $fullscreenOrientationPre
     }),
     cancel: this.exitApp,
     //autoCancel: true,
@@ -367,6 +371,7 @@ export struct PlayPlayer {
       if (this.dialogController != null) {
         this.videoSrc = this.srcParam
         this.fullscreenAutorotatePre = this.fullscreenAutorotate
+        this.fullscreenOrientationPre = this.fullscreenOrientation
         this.videoResizeMode = this.resizeMode
         this.startTime = this.startSecond
         this.paused = true
@@ -586,6 +591,7 @@ export struct PlayPlayer {
               if (this.dialogController != null) {
                 this.videoSrc = this.srcParam
                 this.fullscreenAutorotatePre = this.fullscreenAutorotate
+                this.fullscreenOrientationPre = this.fullscreenOrientation
                 this.videoResizeMode = this.resizeMode
                 this.startTime = this.startSecond
                 this.paused = true
