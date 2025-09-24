@@ -1,3 +1,6 @@
+import { common } from "@kit.AbilityKit";
+import { window } from "@kit.ArkUI";
+
 let fitMap: Map<string,  ImageFit> = new Map();
 fitMap.set('cover',ImageFit.Cover)
 fitMap.set('contain',ImageFit.Contain)
@@ -10,6 +13,7 @@ export struct OverlayDialog {
   //@State videoSrc: Resource| string = 'https://res.vmallres.com//uomcdn/CN/cms/202210/C75C7E20060F3E909F2998E13C3ABC03.mp4'
   @Link videoSrc: string
   @Link videoResizeMode:string
+  @Link fullscreenAutorotate:boolean
   @State previewUri: string = 'common/videoIcon.png'
   @State curRate: PlaybackSpeed = PlaybackSpeed.Speed_Forward_1_00_X
   @State durationTime: number = 0
@@ -31,6 +35,13 @@ export struct OverlayDialog {
   }
   aboutToAppear(): void {
     console.info('video_test 弹窗拉起')
+    const context = getContext(this) as common.UIAbilityContext
+    const win = context.windowStage?.getMainWindowSync()
+    if (this.fullscreenAutorotate) {
+      win.setPreferredOrientation(window.Orientation.AUTO_ROTATION);
+    } else {
+      win.setPreferredOrientation(window.Orientation.PORTRAIT);
+    }
   }
   aboutToDisappear(): void {
     this.videoController.stop()

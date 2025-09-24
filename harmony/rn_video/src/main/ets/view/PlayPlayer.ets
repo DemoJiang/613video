@@ -83,6 +83,10 @@ export struct PlayPlayer {
   selectedVideoTrack: RNCSelectTrack
   @Consume
   selectedTextTrack: RNCSelectTrack
+  @Consume
+  preferredForwardBufferDuration: number
+  @Consume
+  fullscreenAutorotate: boolean
   @Consume @Watch("onPIPChanged")
   pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
@@ -122,6 +126,7 @@ export struct PlayPlayer {
   @Provide startTime : number = 0
   @State videoSrc: string = ''
   @State videoResizeMode: string = ''
+  @State fullscreenAutorotatePre: boolean = true
   @Consume ('extFullscreenVar') extFullscreen: boolean;
   private pipController?: PiPWindow.PiPController;
 
@@ -130,7 +135,8 @@ export struct PlayPlayer {
       cancel: ()=> { this.onCancel() },
       confirm: ()=> { this.onAccept() },
       videoSrc: $videoSrc,
-      videoResizeMode: $videoResizeMode
+      videoResizeMode: $videoResizeMode,
+      fullscreenAutorotate: $fullscreenAutorotatePre
     }),
     cancel: this.exitApp,
     //autoCancel: true,
@@ -177,6 +183,17 @@ export struct PlayPlayer {
     }
 
     this.initSelectTrack();
+
+    this.initBufferStrategy();
+  }
+
+  /**
+   * 初始化缓冲策略
+   */
+  initBufferStrategy(){
+    if (this.preferredForwardBufferDuration) {
+      this.playVideoModel?.setBufferDuration(this.preferredForwardBufferDuration);
+    }
   }
 
   initSelectTrack(){
@@ -349,6 +366,7 @@ export struct PlayPlayer {
     {
       if (this.dialogController != null) {
         this.videoSrc = this.srcParam
+        this.fullscreenAutorotatePre = this.fullscreenAutorotate
         this.videoResizeMode = this.resizeMode
         this.startTime = this.startSecond
         this.paused = true
@@ -567,6 +585,7 @@ export struct PlayPlayer {
            //   console.info('video_test ' + this.srcParam)
               if (this.dialogController != null) {
                 this.videoSrc = this.srcParam
+                this.fullscreenAutorotatePre = this.fullscreenAutorotate
                 this.videoResizeMode = this.resizeMode
                 this.startTime = this.startSecond
                 this.paused = true

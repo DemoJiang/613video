@@ -456,6 +456,11 @@ export class VideoController {
     }
   }
 
+  setBufferDuration(bufferDuration: number){
+    let playStrategy: media.PlaybackStrategy = {preferredBufferDuration: bufferDuration};
+    this.avPlayer?.setPlaybackStrategy(playStrategy)
+  }
+
   /**
    * Release the video player.
    */
