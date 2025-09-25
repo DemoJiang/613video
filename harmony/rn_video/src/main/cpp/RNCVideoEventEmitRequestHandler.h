@@ -55,6 +55,7 @@ enum RNCVideoEventType {
     RNC_VIDEO_FULLSCREEN_PLAYER_WILLPRESENT = 19,
     RNC_VIDEO_FULLSCREEN_PLAYER_DIDPRESENT = 20,
     RNC_VIDEO_FULLSCREEN_PLAYER_WILLDISMISS = 21,
+    RNC_VIDEO_AUDIO_FOCUS_CHANGED = 22,
 };
 
 RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
@@ -104,6 +105,8 @@ RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
         return RNCVideoEventType::RNC_VIDEO_RATE_CHANGE;
     }else if (eventType == "onPictureInPictureStatusChanged"){
         return RNCVideoEventType::RNC_VIDEO_PIP_CHANGE;
+    }else if (eventType == "onAudioFocusChanged"){
+        return RNCVideoEventType::RNC_VIDEO_AUDIO_FOCUS_CHANGED;
     }
     else {
         throw std::runtime_error("Unknown Page event type");
@@ -278,6 +281,13 @@ public:
                 react::RNCVideoEventEmitter::OnPlaybackRateChange event{playbackRate};
                 LOG(INFO) << "RNCVideoEventEmitRequestHandler OnPlaybackRateChange:" ;
                 eventEmitter->onPlaybackRateChange(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_AUDIO_FOCUS_CHANGED : {
+                bool hasAudioFocus = arkJs.getBoolean(arkJs.getObjectProperty(ctx.payload, "hasAudioFocus"));
+                react::RNCVideoEventEmitter::OnAudioFocusChanged event{hasAudioFocus};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler OnAudioFocusChanged:" ;
+                eventEmitter->onAudioFocusChanged(event);
                 break;
             }
             case RNCVideoEventType::RNC_VIDEO_PIP_CHANGE : {

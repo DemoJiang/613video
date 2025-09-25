@@ -80,6 +80,7 @@ export class VideoController {
         Logger.debug(TAG, `createAVPlayer isNull: ${avPlayer == null}`);
         this.avPlayer = avPlayer;
         this.bindState();
+        this.onAudioFocusChange();
         Logger.debug(TAG, `createAVPlayer after bind`);
         if (this.flagtd) {
           this.flagtd = false;
@@ -96,6 +97,20 @@ export class VideoController {
         Logger.error(TAG, '[PlayVideoModel] createAvPlayer fail!');
       }
     });
+  }
+
+  /**
+   * 监听音频焦点变化
+   */
+  onAudioFocusChange(){
+    this.avPlayer?.on('audioInterrupt', (info: audio.InterruptEvent) => {
+      console.info('audioInterrupt called,and InterruptEvent info.eventType:' + info.eventType + ', forceType:' + info.forceType + ', hintType:' + info.hintType)
+      if (info.eventType === audio.InterruptType.INTERRUPT_TYPE_BEGIN) {
+        this.playPageThis.onAudioFocusChanged(false);
+      } else if (info.eventType === audio.InterruptType.INTERRUPT_TYPE_END) {
+        this.playPageThis.onAudioFocusChanged(true);
+      }
+    })
   }
 
   /**

@@ -75,6 +75,7 @@ class RNCVideoViewJSIBinder : public ViewComponentJSIBinder{
         events.setProperty(rt, "topVideoTracks", createDirectEvent(rt, "onVideoTracks"));
         events.setProperty(rt, "topPictureInPictureStatusChanged", createDirectEvent(rt, "onPictureInPictureStatusChanged"));
         events.setProperty(rt, "topPlaybackRateChange", createDirectEvent(rt, "onPlaybackRateChange"));
+        events.setProperty(rt, "topAudioFocusChanged", createDirectEvent(rt, "onAudioFocusChanged"));
         return events;
     }
     

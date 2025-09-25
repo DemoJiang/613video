@@ -137,7 +137,7 @@ public:
     struct OnPlaybackResume {};
 
     struct OnAudioFocusChanged{
-      bool hasFocus;
+      bool hasAudioFocus;
     };
 
     

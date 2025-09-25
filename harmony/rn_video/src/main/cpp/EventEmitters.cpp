@@ -239,7 +239,7 @@ void RNCVideoEventEmitter::onPlaybackResume(OnPlaybackResume event) const {
 void RNCVideoEventEmitter::onAudioFocusChanged(OnAudioFocusChanged event) const {
     dispatchEvent("audioFocusChanged",[event=std::move(event)](jsi::Runtime &runtime){
         auto payload = jsi::Object(runtime);
-        payload.setProperty(runtime,"hasFocus",event.hasFocus);
+        payload.setProperty(runtime,"hasAudioFocus",event.hasAudioFocus);
         return payload;
     });
 }
