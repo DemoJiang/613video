@@ -618,6 +618,22 @@ export class VideoController {
     })
   }
 
+  onVideoFullscreenPlayerWillPresent(){
+    this.playPageThis.onVideoFullscreenPlayerWillPresent();
+  }
+
+  onVideoFullscreenPlayerDidPresent(){
+    this.playPageThis.onVideoFullscreenPlayerDidPresent();
+  }
+
+  onVideoFullscreenPlayerWillDismiss(){
+    this.playPageThis.onVideoFullscreenPlayerWillDismiss();
+  }
+
+  onVideoFullscreenPlayerDidDismiss(){
+    this.playPageThis.onVideoFullscreenPlayerDidDismiss();
+  }
+
   /* 设置播放时屏幕不息屏*/
   setPreventsDisplaySleepDuringVideoPlaybackModifier(preventsDisplaySleepDuringVideoPlayback: boolean): void {
     this.mPreventsDisplaySleepDuringVideoPlayback = preventsDisplaySleepDuringVideoPlayback;

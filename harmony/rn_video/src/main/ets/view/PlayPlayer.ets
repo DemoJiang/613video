@@ -371,6 +371,7 @@ export struct PlayPlayer {
     Logger.debug(TAG, `fullscreenChanged, ${JSON.stringify(this.fullscreen)}`);
     if(this.fullscreen == true)
     {
+      this.playVideoModel?.onVideoFullscreenPlayerWillPresent()
       if (this.dialogController != null) {
         this.videoSrc = this.srcParam
         this.fullscreenAutorotatePre = this.fullscreenAutorotate
@@ -379,10 +380,13 @@ export struct PlayPlayer {
         this.startTime = this.startSecond
         this.paused = true
         this.dialogController.open()
+        this.playVideoModel?.onVideoFullscreenPlayerDidPresent()
         //  setTimeout((): void => this.setModalVisible(false), 5000);
       }
     }else {
+      this.playVideoModel?.onVideoFullscreenPlayerWillDismiss()
       this.setModalVisible(false)
+      this.playVideoModel?.onVideoFullscreenPlayerDidDismiss()
     }
   }
 

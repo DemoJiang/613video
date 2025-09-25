@@ -52,6 +52,9 @@ enum RNCVideoEventType {
     RNC_VIDEO_TRACK_TEXT = 16,
     RNC_VIDEO_RATE_CHANGE = 17,
     RNC_VIDEO_PIP_CHANGE = 18,
+    RNC_VIDEO_FULLSCREEN_PLAYER_WILLPRESENT = 19,
+    RNC_VIDEO_FULLSCREEN_PLAYER_DIDPRESENT = 20,
+    RNC_VIDEO_FULLSCREEN_PLAYER_WILLDISMISS = 21,
 };
 
 RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
@@ -79,6 +82,12 @@ RNCVideoEventType getRNCVideoEventType(ArkJS &arkJs, napi_value eventObject)
         return RNCVideoEventType::RNC_VIDEO_PLAYBACK_RESUME;
     }else if (eventType == "onReadyForDisplay"){
         return RNCVideoEventType::RNC_VIDEO_READY_FOR_DISPLAY;
+    }else if (eventType == "onVideoFullscreenPlayerWillPresent"){
+        return RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_WILLPRESENT;
+    }else if (eventType == "onVideoFullscreenPlayerDidPresent"){
+        return RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_DIDPRESENT;
+    }else if (eventType == "onVideoFullscreenPlayerWillDismiss"){
+        return RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_WILLDISMISS;
     }else if (eventType == "videoFullscreenPlayerDidDismiss"){
         return RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_DIDDISMISS;
     }else if (eventType == "onVideoPlaybackStateChanged"){
@@ -219,6 +228,27 @@ public:
                 react::RNCVideoEventEmitter::OnReadyForDisplay event{};
                 LOG(INFO) << "RNCVideoEventEmitRequestHandler OnReadyForDisplay:" ;
                 eventEmitter->onReadyForDisplay(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_WILLPRESENT: 
+            {
+                react::RNCVideoEventEmitter::OnVideoFullscreenPlayerWillPresent event{};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler onVideoFullscreenPlayerWillPresent:" ;
+                eventEmitter->onVideoFullscreenPlayerWillPresent(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_DIDPRESENT: 
+            {
+                react::RNCVideoEventEmitter::OnVideoFullscreenPlayerDidPresent event{};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler onVideoFullscreenPlayerDidPresent:" ;
+                eventEmitter->onVideoFullscreenPlayerDidPresent(event);
+                break;
+            }
+            case RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_WILLDISMISS: 
+            {
+                react::RNCVideoEventEmitter::OnVideoFullscreenPlayerWillDismiss event{};
+                LOG(INFO) << "RNCVideoEventEmitRequestHandler onVideoFullscreenPlayerWillDismiss:" ;
+                eventEmitter->onVideoFullscreenPlayerWillDismiss(event);
                 break;
             }
              case RNCVideoEventType::RNC_VIDEO_FULLSCREEN_PLAYER_DIDDISMISS: 

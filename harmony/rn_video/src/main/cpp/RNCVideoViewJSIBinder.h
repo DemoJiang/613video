@@ -64,6 +64,9 @@ class RNCVideoViewJSIBinder : public ViewComponentJSIBinder{
         events.setProperty(rt, "topPlaybackStalled", createDirectEvent(rt, "onPlaybackStalled"));
         events.setProperty(rt, "topPlaybackResume", createDirectEvent(rt, "onPlaybackResume"));
         events.setProperty(rt, "topReadyForDisplay", createDirectEvent(rt, "onReadyForDisplay"));
+        events.setProperty(rt, "topVideoFullscreenPlayerWillPresent", createDirectEvent(rt, "onVideoFullscreenPlayerWillPresent"));
+        events.setProperty(rt, "topVideoFullscreenPlayerDidPresent", createDirectEvent(rt, "onVideoFullscreenPlayerDidPresent"));
+        events.setProperty(rt, "topVideoFullscreenPlayerWillDismiss", createDirectEvent(rt, "onVideoFullscreenPlayerWillDismiss"));
         events.setProperty(rt, "topVideoFullscreenPlayerDidDismiss", createDirectEvent(rt, "onVideoFullscreenPlayerDidDismiss"));
         events.setProperty(rt, "topVideoPlaybackStateChanged", createDirectEvent(rt, "onVideoPlaybackStateChanged"));
         events.setProperty(rt, "topVolumeChange", createDirectEvent(rt, "onVolumeChange"));
