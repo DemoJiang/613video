@@ -196,6 +196,7 @@ export class VideoController {
             this.avPlayer.fdSrc = this.url;
           }
           this.onVideoLoadStart(JSON.stringify(this.url));
+          this.playPageThis.onVideoIdle();
           break;
         case AvplayerStatus.INITIALIZED:
           if (this.playerThis.disableFocus) {

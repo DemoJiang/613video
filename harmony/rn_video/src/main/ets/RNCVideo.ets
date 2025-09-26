@@ -149,6 +149,7 @@ export interface IRNCVideo {
   onVideoFullscreenPlayerWillDismiss: () => void
   onVideoFullscreenPlayerDidDismiss: () => void
   onAudioFocusChanged: (hasAudioFocus: boolean) => void
+  onVideoIdle: () => void
 }
 
 const TAG: string = 'RNOH in RNCVideo'
@@ -306,6 +307,14 @@ export struct RNCVideo {
     this.changedViewHeight = this.viewHeight
     if (this.resizeMode === ResizeMode.COVER) {
       this.videoHeight = this.viewHeight
+    }
+  }
+
+  onVideoIdle(): void {
+    if (this.ctx) {
+      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
+        type: "onVideoIdle"
+      })
     }
   }
 
