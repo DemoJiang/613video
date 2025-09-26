@@ -359,6 +359,9 @@ export interface NativeCommands {
   setPlayerPauseStateCmd: (viewRef: React.ElementRef<VideoComponentType>, paused: boolean) => void;
   enterPictureInPictureCmd: (viewRef: React.ElementRef<VideoComponentType>) => void;
   exitPictureInPictureCmd: (viewRef: React.ElementRef<VideoComponentType>) => void;
+  seekCmd: (viewRef: React.ElementRef<VideoComponentType>, time: Float, tolerance?: Float) => void;
+  setFullScreenCmd: (viewRef: React.ElementRef<VideoComponentType>, fullScreen: boolean) => void;
+  setVolumeCmd: (viewRef: React.ElementRef<VideoComponentType>, volume: number) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
@@ -369,7 +372,10 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     // 'fullscreen',
     'setPlayerPauseStateCmd',
     'enterPictureInPictureCmd',
-    'exitPictureInPictureCmd'
+    'exitPictureInPictureCmd',
+    'seekCmd',
+    'setFullScreenCmd',
+    'setVolumeCmd'
   ],
 });
 

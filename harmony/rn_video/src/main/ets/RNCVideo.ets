@@ -122,6 +122,9 @@ const RNC_VIDEO_SEEK: string = 'seek'
 const RNC_VIDEO_CMD_STATE: string = 'setPlayerPauseStateCmd'
 const RNC_VIDEO_CMD_PIP_ENTER: string = 'enterPictureInPictureCmd'
 const RNC_VIDEO_CMD_PIP_EXIT: string = 'exitPictureInPictureCmd'
+const RNC_VIDEO_CMD_SEEK: string = 'seekCmd'
+const RNC_VIDEO_CMD_FULLSCREEN: string = 'setFullScreenCmd'
+const RNC_VIDEO_CMD_VOLUME: string = 'setVolumeCmd'
 
 export interface IRNCVideo {
   videoMargin: string
@@ -265,6 +268,12 @@ export struct RNCVideo {
         (command, args: (string | number | boolean)[]) => {
           if (command === RNC_VIDEO_SEEK) {
             this.playVideoModel.setSeekTime(Number(args[0]));
+          } else if (command === RNC_VIDEO_CMD_SEEK){
+            this.playVideoModel.setSeekTime(Number(args[0]));
+          } else if (command === RNC_VIDEO_CMD_VOLUME){
+            this.volume = Number(args[0]);
+          } else if (command === RNC_VIDEO_CMD_FULLSCREEN){
+            this.fullscreen = args[0] as boolean;
           } else if (command === RNC_VIDEO_CMD_STATE) {
             this.playVideoModel.switchPlayOrPause((args[0] as boolean))
           } else if (command === RNC_VIDEO_CMD_PIP_ENTER) {
