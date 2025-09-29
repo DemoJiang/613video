@@ -31,6 +31,7 @@ import { CommonConstants, ResizeMode } from './common/constants/CommonConstants'
 import Logger from './common/util/Logger';
 import { display } from '@kit.ArkUI';
 import observer from '@ohos.arkui.observer';
+import { RNC } from './generated/ts';
 
 interface NavDestinationState {
   navigationId: string
@@ -216,9 +217,11 @@ export struct RNCVideo {
   private callbackList: Array<() => void> = []
   private playVideoModel: VideoController = new VideoController();
   private isResume: boolean = false;
+  private eventEmitter: RNC.RNCVideo.EventEmitter | undefined = undefined
 
   aboutToAppear(): void {
 
+    this.eventEmitter = new RNC.RNCVideo.EventEmitter(this.ctx.rnInstance, this.tag)
     this.descriptor = this.ctx.descriptorRegistry.getDescriptor<VideoViewDescriptor>(this.tag);
     this.callbackList.push(this.ctx.descriptorRegistry.subscribeToDescriptorChanges(this.tag,
       (newDescriptor) => {
@@ -320,52 +323,27 @@ export struct RNCVideo {
   }
 
   onVideoIdle(): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoIdle"
-      })
-    }
+    this.eventEmitter!.emit("videoIdle",{})
   }
 
   onAudioFocusChanged(hasAudioFocus: boolean){
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onAudioFocusChanged",
-        hasAudioFocus: hasAudioFocus
-      })
-    }
+    this.eventEmitter!.emit("audioFocusChanged",{hasAudioFocus: hasAudioFocus})
   }
 
   onVideoFullscreenPlayerWillPresent(){
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoFullscreenPlayerWillPresent"
-      })
-    }
+    this.eventEmitter!.emit("videoFullscreenPlayerWillPresent",{})
   }
 
   onVideoFullscreenPlayerDidPresent(){
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoFullscreenPlayerDidPresent"
-      })
-    }
+    this.eventEmitter!.emit("videoFullscreenPlayerDidPresent",{})
   }
 
   onVideoFullscreenPlayerWillDismiss(){
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoFullscreenPlayerWillDismiss"
-      })
-    }
+    this.eventEmitter!.emit("videoFullscreenPlayerWillDismiss",{})
   }
 
   onVideoFullscreenPlayerDidDismiss(){
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "videoFullscreenPlayerDidDismiss"
-      })
-    }
+    this.eventEmitter!.emit("videoFullscreenPlayerDidDismiss",{})
   }
 
   /**
@@ -378,34 +356,27 @@ export struct RNCVideo {
    * @return void
    */
   onVideoLoad(startSecond: number, length: number, widthIn: number, heightIn: number, orientationIn: string): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoLoad",
-        currentPosition: startSecond,
-        duration: length,
-        naturalSize: {
-          width: widthIn,
-          height: heightIn,
-          orientation: orientationIn
-        },
-        audioTracks: this.playVideoModel.audioTracksBeanArr,
-        videoTracks: this.playVideoModel.videoTracksBeanArr
+    this.eventEmitter?.emit("videoLoad", {
+      currentTime: startSecond,
+      duration: length,
+      naturalSize: {
+        width: widthIn,
+        height: heightIn,
+        orientation: orientationIn
+      },
+      audioTracks: this.playVideoModel.audioTracksBeanArr,
+      textTracks: null
 
-      })
-      this.startSecond = startSecond
-      this.duration = length
-    }
+    });
+    this.startSecond = startSecond
+    this.duration = length
   }
 
   onVideoEnd(): void {
     if (this.repeat == undefined || this.repeat == false) {
       this.paused = true
     }
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoEnd"
-      })
-    }
+    this.eventEmitter!.emit("videoEnd", {})
   }
 
   /**
@@ -416,54 +387,37 @@ export struct RNCVideo {
    * @return null
    */
   onVideoLoadStart(cUri: string | media.AVFileDescriptor): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoLoadStart",
-        isNetwork: this.descriptor.rawProps.src.isNetwork,
-        videoType: this.descriptor.rawProps.src.type,
-        uri: cUri
-      })
-    }
+    this.eventEmitter!.emit("videoLoadStart", {
+      isNetwork: this.descriptor.rawProps.src.isNetwork,
+      type: this.descriptor.rawProps.src.type,
+      uri: cUri.toString()
+    });
   }
 
   onReadyForDisplay(): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onReadyForDisplay"
-      })
-    }
+    this.eventEmitter!.emit("readyForDisplay",{});
   }
 
   onVideoError(err: string): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoError",
-        error: err
-      })
-    }
+    this.eventEmitter!.emit("videoError",{error: {errorString:err}});
   }
 
   onVideoProgress(time: number, _playableDuration: number = 0, _seekableDuration: number = 0): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoProgress",
-        currentTime: time,
-        playableDuration: _playableDuration,
-        seekableDuration: _seekableDuration
-      })
-      this.startSecond = time
-    }
+    this.eventEmitter!.emit("videoProgress", {
+      currentTime: time,
+      playableDuration: _playableDuration,
+      seekableDuration: _seekableDuration
+    });
+    this.startSecond = time
   }
 
   onVideoBuffer(isBufferingIn: boolean): void {
-    if (this.ctx) {
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoBuffer",
-        isBuffering: isBufferingIn
-      })
-    }
+    this.eventEmitter!.emit("videoBuffer",{isBuffering: isBufferingIn});
   }
 
+  /**
+   * 6.13.0该方法废弃,后面考虑兼容问题
+   */
   onVideoPlaybackStalled(): void {
     if (this.ctx) {
       this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
@@ -472,6 +426,9 @@ export struct RNCVideo {
     }
   }
 
+  /**
+   * 6.13.0该方法废弃,后面考虑兼容问题
+   */
   onVideoPlaybackResume(): void {
     if (this.ctx) {
       this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
@@ -483,85 +440,38 @@ export struct RNCVideo {
   extFullscreenChanged(changedPropertyName: string) {
 
     if (this.extFullscreen) {
-      if (this.ctx) {
-        this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-          type: "videoFullscreenPlayerDidDismiss"
-        })
-      }
+      this.eventEmitter!.emit("videoFullscreenPlayerDidDismiss",{});
       this.extFullscreen = false
 
     }
   }
 
   onVideoPlaybackStateChanged(isPlaying: boolean, isSeeking: boolean): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onVideoPlaybackStateChanged")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoPlaybackStateChanged",
-        isPlaying: isPlaying,
-        isSeeking: isSeeking
-      })
-    }
+    this.eventEmitter!.emit("videoPlaybackStateChanged", { isPlaying: isPlaying, isSeeking: isSeeking });
   }
 
   onVolumeChange(volume: number): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onVolumeChange")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVolumeChange",
-        volume: volume
-      })
-    }
+    this.eventEmitter!.emit("volumeChange", { volume: volume });
   }
 
   onAudioTracks(audioTracks: RNCAudioTracks[]): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onAudioTracks")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onAudioTracks",
-        audioTracks: audioTracks
-      })
-    }
+    this.eventEmitter!.emit("audioTracks", { audioTracks: audioTracks });
   }
 
   onVideoTracks(videoTracks: RNCVideoTracks[]): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onVideoTracks")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onVideoTracks",
-        videoTracks: videoTracks
-      })
-    }
+    this.eventEmitter!.emit("videoTracks", { videoTracks: videoTracks });
   }
 
   onTextTracks(textTracks: RNCTextTracks[]): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onTextTracks")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onTextTracks",
-        textTracks: textTracks
-      })
-    }
+    this.eventEmitter!.emit("textTracks", { textTracks: textTracks });
   }
 
   onPlaybackRateChange(playbackRate: number): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets emit onPlaybackRateChange")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onPlaybackRateChange",
-        playbackRate: playbackRate
-      })
-    }
+    this.eventEmitter!.emit("playbackRateChange", { playbackRate: playbackRate });
   }
 
   onPictureInPictureStatusChanged(isActive: boolean): void {
-    if (this.ctx) {
-      console.log("RNCVideo.ets--------> RNCVideo.ets emit onPictureInPictureStatusChanged")
-      this.ctx.rnInstance.emitComponentEvent(this.descriptor.tag, RNC_VIDEO_TYPE, {
-        type: "onPictureInPictureStatusChanged",
-        isActive: isActive
-      })
-    }
+    this.eventEmitter!.emit("pictureInPictureStatusChanged", { isActive: isActive });
   }
 
   async getFd(): Promise<void> {

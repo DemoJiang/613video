@@ -23,42 +23,13 @@
  */
 
 #pragma once
-#include "RNOH/Package.h"
-#include "RNCVideoComponentDescriptor.h"
-#include "RNCVideoViewJSIBinder.h"
-#include "RNCVideoViewNapiBinder.h"
-#include "RNCVideoEventEmitRequestHandler.h"
 
-using namespace rnoh;
-using namespace facebook;
-
+#include "generated/RNOH/generated/BaseReactNativeVideoPackage.h"
 namespace rnoh {
 
-class RNCVideoPackage : public Package {
-public:
-    RNCVideoPackage(Package::Context ctx) : Package(ctx) {}
-
-    std::vector<facebook::react::ComponentDescriptorProvider> createComponentDescriptorProviders() override 
-    {
-        return {
-            facebook::react::concreteComponentDescriptorProvider<facebook::react::RNCVideoComponentDescriptor>(),
-        };
-    }
-
-    ComponentJSIBinderByString createComponentJSIBinderByName() override 
-    {
-        return {{"RNCVideo", std::make_shared<RNCVideoViewJSIBinder>()}};
-    };
-
-    ComponentNapiBinderByString createComponentNapiBinderByName() override
-    {
-        return {{"RNCVideo", std::make_shared<RNCVideoViewNapiBinder>()}};
-    };
-
-    EventEmitRequestHandlers createEventEmitRequestHandlers() override
-    {
-        return {std::make_shared<RNCVideoEventEmitRequestHandler>()};
-    }
+class RNCVideoPackage : public BaseReactNativeVideoPackage {
+    using Super = BaseReactNativeVideoPackage;
+    using Super::Super;
 };
 } // namespace rnoh
 
