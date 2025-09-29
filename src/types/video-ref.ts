@@ -1,5 +1,5 @@
 import type {RefObject} from 'react';
-import {ReactVideoSource} from './video';
+import type {ReactVideoSource} from './video';
 
 export type VideoSaveData = {
   uri: string;

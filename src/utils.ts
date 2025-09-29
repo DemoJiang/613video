@@ -1,6 +1,6 @@
 import type {Component, RefObject, ComponentClass} from 'react';
 import {Image, findNodeHandle, type ImageSourcePropType} from 'react-native';
-import type {ReactVideoSource, ReactVideoSourceProperties} from '@react-native-oh-tpl/react-native-video/src/types/video';
+import type {ReactVideoSource, ReactVideoSourceProperties} from './types/video';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function generateHeaderForNative(obj?: Record<string, any>) {

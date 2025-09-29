@@ -10,13 +10,19 @@ export const VideoDecoderProperties = {
     if (Platform.OS !== 'android') {
       throw new Error(errMsgGen('VideoDecoderProperties', 'getWidevineLevel'));
     }
+    if (!RNVideoDecoderInfoModule) {
+      throw new Error('Native module not available on Android');
+    }
     return RNVideoDecoderInfoModule.getWidevineLevel();
   },
   async isCodecSupported(
-    ...args: Parameters<typeof RNVideoDecoderInfoModule.isCodecSupported>
+    ...args: Parameters<NonNullable<typeof RNVideoDecoderInfoModule>['isCodecSupported']>
   ) {
     if (Platform.OS !== 'android') {
       throw new Error(errMsgGen('VideoDecoderProperties', 'isCodecSupported'));
+    }
+    if (!RNVideoDecoderInfoModule) {
+      throw new Error('Native module not available on Android');
     }
     return RNVideoDecoderInfoModule.isCodecSupported(...args);
   },
@@ -24,6 +30,9 @@ export const VideoDecoderProperties = {
     if (Platform.OS !== 'android') {
       throw new Error(errMsgGen('VideoDecoderProperties', 'isHEVCSupported'));
     }
+    if (!RNVideoDecoderInfoModule) {
+  throw new Error('Native module not available on Android');
+}
     return RNVideoDecoderInfoModule.isHEVCSupported();
   },
 };

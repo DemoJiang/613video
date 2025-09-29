@@ -8,6 +8,7 @@ import type {
   ImageRequireSource,
   ImageURISource,
   ImageStyle,
+  ImageSourcePropType
 } from 'react-native';
 import type {ReactNode} from 'react';
 import type VideoResizeMode from './ResizeMode';
@@ -50,7 +51,7 @@ export type ReactVideoSource = Readonly<
   }
 >;
 
-export type ReactVideoPosterSource = ImageURISource | ImageRequireSource;
+export type ReactVideoPosterSource = ImageURISource | ImageRequireSource | ImageSourcePropType;
 
 export type ReactVideoPoster = Omit<ImageProps, 'source'> & {
   // prevents giving source in the array

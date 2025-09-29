@@ -14,6 +14,7 @@ import type {
   NativeSyntheticEvent,
   ViewStyle,
   ImageResizeMode,
+  ImageSourcePropType
 } from 'react-native';
 
 import NativeVideoComponent, {
@@ -42,8 +43,8 @@ import type {
 import {
   generateHeaderForNative,
   resolveAssetSourceForVideo,
-} from '@react-native-oh-tpl/react-native-video/src/utils';
-import {ViewType, CmcdMode, VideoRef} from '@react-native-oh-tpl/react-native-video/src/types';
+} from './utils';
+import {ViewType, CmcdMode, VideoRef} from './types';
 import type {
   OnLoadData,
   OnTextTracksData,
@@ -51,7 +52,7 @@ import type {
   ReactVideoProps,
   CmcdData,
   ReactVideoSource,
-} from '@react-native-oh-tpl/react-native-video/src/types';
+} from './types';
 
 const Video = forwardRef<VideoRef, ReactVideoProps>(
   (
@@ -444,7 +445,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       })();
     }, []);
 
-    const save = useCallback((options: object) => {
+    const save = useCallback(() => {
       // VideoManager.save can be null on android & windows
       if (Platform.OS !== 'ios') {
         return;
@@ -454,11 +455,11 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       return Commands.save?.(nativeRef.current);
     }, []);
 
-    const getCurrentPosition = useCallback(() => {
+    // const getCurrentPosition = useCallback(() => {
       // @todo Must implement it in a different way.
       // if (!nativeRef.current) return;
       // return Commands.getCurrentPosition(nativeRef.current);
-    }, []);
+    // }, []);
 
     const restoreUserInterfaceForPictureInPictureStopCompleted = useCallback(
       (restored: boolean) => {
@@ -661,20 +662,20 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
             throw Error('Empty license result');
           }
           if (nativeRef.current) {
-            // Commands.setLicenseResultCmd(
-            //   nativeRef.current,
-            //   license,
-            //   data.loadedLicenseUrl,
-            // );
+            Commands.setLicenseResultCmd(
+              nativeRef.current,
+              license,
+              data.loadedLicenseUrl,
+            );
           }
         } catch (e) {
           const msg = e instanceof Error ? e.message : 'fetch error';
           if (nativeRef.current) {
-            // Commands.setLicenseResultErrorCmd(
-            //   nativeRef.current,
-            //   msg,
-            //   data.loadedLicenseUrl,
-            // );
+            Commands.setLicenseResultErrorCmd(
+              nativeRef.current,
+              msg,
+              data.loadedLicenseUrl,
+            );
           }
         }
       },
@@ -800,7 +801,7 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
       return (
         <Image
           {...(isPosterDeprecated ? {} : poster)}
-          source={isPosterDeprecated ? {uri: poster} : poster?.source}
+          source={isPosterDeprecated ? {uri: poster} : poster?.source as ImageSourcePropType}
           style={posterStyle}
         />
       );

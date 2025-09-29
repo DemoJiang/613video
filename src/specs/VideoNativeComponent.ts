@@ -415,7 +415,9 @@ export interface NativeCommands {
   exitPictureInPictureCmd: (viewRef: React.ElementRef<VideoComponentType>) => void;
   seekCmd: (viewRef: React.ElementRef<VideoComponentType>, time: Float, tolerance?: Float) => void;
   setFullScreenCmd: (viewRef: React.ElementRef<VideoComponentType>, fullScreen: boolean) => void;
-  setVolumeCmd: (viewRef: React.ElementRef<VideoComponentType>, volume: number) => void;
+  setVolumeCmd: (viewRef: React.ElementRef<VideoComponentType>, volume: Float) => void;
+  setLicenseResultErrorCmd: (viewRef: React.ElementRef<VideoComponentType>, error: string, licenseUrl: string,) => void;
+  setLicenseResultCmd: (viewRef: React.ElementRef<VideoComponentType>, result: string, licenseUrl: string,) => void;
 }
 
 export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
@@ -429,7 +431,9 @@ export const Commands: NativeCommands = codegenNativeCommands<NativeCommands>({
     'exitPictureInPictureCmd',
     'seekCmd',
     'setFullScreenCmd',
-    'setVolumeCmd'
+    'setVolumeCmd',
+    'setLicenseResultErrorCmd',
+    'setLicenseResultCmd'
   ],
 });
 
