@@ -135,7 +135,7 @@ export class VideoController {
 
       this.avPlayer.on(Events.DURATION_UPDATE, (durationA) => {
         Logger.debug(TAG, `durationUpdate success,new duration is=${durationA}`);
-        this.duration = durationA == 0 ? 0 : Math.floor(durationA / 1000); // ms->s
+        this.duration = durationA == 0 ? 0 : durationA / 1000; // ms->s
       })
 
       this.avPlayer.on(Events.ERROR, (error) => {
