@@ -90,34 +90,11 @@ export class RNCSelectTrack {
   value?: string = ""
 }
 
-export interface RNCVideoProps extends ViewBaseProps {
-  controls: boolean
-  fullscreen: boolean
-  src: RNCVideoSrc
-  paused: boolean
-  resizeMode: string
-  muted: boolean
-  repeat: boolean
-  volume: number
-  disableFocus: boolean
-  preventsDisplaySleepDuringVideoPlayback: boolean
-  rate: number
-  enterPictureInPictureOnLeave: boolean
-  pictureInPicture: boolean
-  selectedAudioTrack: RNCSelectTrack
-  selectedVideoTrack: RNCSelectTrack
-  selectedTextTrack: RNCSelectTrack
-  preferredForwardBufferDuration: number
-  fullscreenAutorotate: boolean
-  fullscreenOrientation: string
-  progressUpdateInterval: number
-}
-
 export interface AutoLayoutViewState {}
 
 export const RNC_VIDEO_TYPE: string = "RNCVideo"
 
-export type VideoViewDescriptor = Descriptor<"RNCVideo", ViewBaseProps, AutoLayoutViewState, RNCVideoProps>
+export type VideoViewDescriptor = Descriptor<"RNCVideo", RNC.RNCVideo.Props>
 
 const RNC_VIDEO_SEEK: string = 'seek'
 const RNC_VIDEO_CMD_STATE: string = 'setPlayerPauseStateCmd'
@@ -290,29 +267,29 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
-    this.muted = this.descriptor.rawProps.muted
-    this.paused = this.descriptor.rawProps.paused
-    this.isUserPaused = this.descriptor.rawProps.paused
-    this.enterPictureInPictureOnLeave = this.descriptor.rawProps.enterPictureInPictureOnLeave
-    this.pictureInPicture = this.descriptor.rawProps.pictureInPicture
-    this.controls = this.descriptor.rawProps.controls
-    this.fullscreen = this.descriptor.rawProps.fullscreen
-    this.rate = this.descriptor.rawProps.rate !== undefined ? this.descriptor.rawProps.rate :
+    this.muted = this.descriptor.rawProps['muted']
+    this.paused = this.descriptor.rawProps['paused']
+    this.isUserPaused = this.descriptor.rawProps['paused']
+    this.enterPictureInPictureOnLeave = this.descriptor.rawProps['enterPictureInPictureOnLeave']
+    this.pictureInPicture = this.descriptor.rawProps['pictureInPicture']
+    this.controls = this.descriptor.rawProps['controls']
+    this.fullscreen = this.descriptor.rawProps['fullscreen']
+    this.rate = this.descriptor.rawProps['rate'] !== undefined ? this.descriptor.rawProps['rate'] :
     media.PlaybackSpeed.SPEED_FORWARD_1_00_X
-    this.resizeMode = this.descriptor.rawProps.resizeMode
-    this.repeat = this.descriptor.rawProps.repeat !== undefined ? this.descriptor.rawProps.repeat : false;
-    this.volume = this.descriptor.rawProps.volume !== undefined ? this.descriptor.rawProps.volume : 1.0;
+    this.resizeMode = this.descriptor.rawProps['resizeMode']
+    this.repeat = this.descriptor.rawProps['repeat'] !== undefined ? this.descriptor.rawProps['repeat'] : false;
+    this.volume = this.descriptor.rawProps['volume'] !== undefined ? this.descriptor.rawProps['volume'] : 1.0;
     this.volume = this.muted ? 0 : this.volume;
-    this.srcParam = this.descriptor.rawProps.src.uri
-    this.disableFocus = this.descriptor.rawProps.disableFocus
-    this.preventsDisplaySleepDuringVideoPlayback = this.descriptor.rawProps.preventsDisplaySleepDuringVideoPlayback
-    this.selectedAudioTrack = this.descriptor.rawProps.selectedAudioTrack
-    this.selectedVideoTrack = this.descriptor.rawProps.selectedVideoTrack
-    this.selectedTextTrack = this.descriptor.rawProps.selectedTextTrack
-    this.preferredForwardBufferDuration = this.descriptor.rawProps.preferredForwardBufferDuration
-    this.fullscreenAutorotate = this.descriptor.rawProps.fullscreenAutorotate !== undefined ? this.descriptor.rawProps.fullscreenAutorotate : true
-    this.fullscreenOrientation = this.descriptor.rawProps.fullscreenOrientation !== undefined ? this.descriptor.rawProps.fullscreenOrientation : 'all'
-    this.progressUpdateInterval = this.descriptor.rawProps.progressUpdateInterval !== undefined ? this.descriptor.rawProps.progressUpdateInterval : 250.0
+    this.srcParam = this.descriptor.rawProps['src'].uri
+    this.disableFocus = this.descriptor.rawProps['disableFocu']
+    this.preventsDisplaySleepDuringVideoPlayback = this.descriptor.rawProps['preventsDisplaySleepDuringVideoPlayback']
+    this.selectedAudioTrack = this.descriptor.rawProps['selectedAudioTrack']
+    this.selectedVideoTrack = this.descriptor.rawProps['selectedVideoTrack']
+    this.selectedTextTrack = this.descriptor.rawProps['selectedTextTrack']
+    this.preferredForwardBufferDuration = this.descriptor.rawProps['preferredForwardBufferDuration']
+    this.fullscreenAutorotate = this.descriptor.rawProps['fullscreenAutorotate'] !== undefined ? this.descriptor.rawProps['fullscreenAutorotate'] : true
+    this.fullscreenOrientation = this.descriptor.rawProps['fullscreenOrientation'] !== undefined ? this.descriptor.rawProps['fullscreenOrientation'] : 'all'
+    this.progressUpdateInterval = this.descriptor.rawProps['progressUpdateInterval'] !== undefined ? this.descriptor.rawProps['progressUpdateInterval'] : 250.0
     this.viewWidth = this.descriptor.layoutMetrics.frame.size.width
     this.viewHeight = this.descriptor.layoutMetrics.frame.size.height
     this.changedViewWidth = this.viewWidth
@@ -388,8 +365,8 @@ export struct RNCVideo {
    */
   onVideoLoadStart(cUri: string | media.AVFileDescriptor): void {
     this.eventEmitter!.emit("videoLoadStart", {
-      isNetwork: this.descriptor.rawProps.src.isNetwork,
-      type: this.descriptor.rawProps.src.type,
+      isNetwork: this.descriptor.rawProps['src'].isNetwork,
+      type: this.descriptor.rawProps['src'].type,
       uri: cUri.toString()
     });
   }
