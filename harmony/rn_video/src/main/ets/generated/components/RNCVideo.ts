@@ -317,6 +317,8 @@ export namespace RNCVideo {
     "seekCmd": [number, number]
     "setFullScreenCmd": [boolean]
     "setVolumeCmd": [number]
+    "setLicenseResultErrorCmd": [string, string]
+    "setLicenseResultCmd": [string, string]
   }
   
   export class CommandReceiver {

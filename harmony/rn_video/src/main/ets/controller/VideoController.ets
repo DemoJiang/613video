@@ -59,6 +59,9 @@ export class VideoController {
   public videoTracksBeanArr?: VideoTracksBean[];
   private mPreventsDisplaySleepDuringVideoPlayback: boolean = true; /* 默认true*/
 
+  // 记录媒体服务监听的当前播放时间，用于最后刷新 onVideoProgress
+  private avplayerCurrentTime: number = 0;
+
   constructor() {
     this.createAVPlayer();
   }
@@ -122,6 +125,7 @@ export class VideoController {
     if (this.avPlayer) {
       this.onStateChange();
       this.avPlayer.on(Events.TIME_UPDATE, (time: number) => {
+        this.avplayerCurrentTime = time;
         const currentTime = new Date().getTime();
         if(currentTime-lastCalledTime >= this.playerThis.progressUpdateInterval){
           this.onVideoProgress(time);
@@ -842,6 +846,8 @@ export class VideoController {
    */
   onVideoEnd(): void {
     this.playPageThis.onVideoEnd();
+    // 当时视频播放完成时，最后给播放器一个onVideoProgress回调，用于更新进度条
+    this.onVideoProgress(this.avplayerCurrentTime);
   }
 
   onPlaybackRateChange(rate: number): void {
