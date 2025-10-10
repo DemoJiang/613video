@@ -85,6 +85,8 @@ export struct PlayPlayer {
   @Consume
   selectedTextTrack: RNCSelectTrack
   @Consume
+  shutterColor: number
+  @Consume
   preferredForwardBufferDuration: number
   @Consume
   fullscreenAutorotate: boolean
@@ -95,6 +97,7 @@ export struct PlayPlayer {
   @Consume @Watch("onPIPChanged")
   pictureInPicture: boolean
   @Consume('preventsDisplaySleepDuringVideoPlaybackVar') @Watch("setPreventsDisplaySleepDuringVideoPlaybackModifier") preventsDisplaySleepDuringVideoPlayback: boolean;
+  @Consume('hideShutterViewVar') hideShutterView: boolean;
   @Provide type: number = CommonConstants.TYPE_LOCAL; //TODO:luoxf 修改td
   @State bright: number = PlayConstants.PLAY_PAGE.BRIGHT;
   /* 不需要显示 */
@@ -493,6 +496,7 @@ export struct PlayPlayer {
           libraryname: PlayConstants.PLAY_PLAYER.LIBRARY_NAME,
           controller: this.xComponentController
         })
+          .backgroundColor(this.hideShutterView ? Color.Transparent : (this.shutterColor == -1 ? Color.Black : this.shutterColor))
           .onLoad(async () => {
             this.xComponentController.setXComponentSurfaceSize({
               surfaceWidth: PlayConstants.PLAY_PLAYER.SURFACE_WIDTH,

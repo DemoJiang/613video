@@ -160,6 +160,7 @@ export struct RNCVideo {
   @Provide('volumeVar') volume: number = PlayConstants.PLAY_PAGE.VOLUME;
   @Provide('rateVar') rate: number = media.PlaybackSpeed.SPEED_FORWARD_1_00_X;
   @Provide('disableFocusVar') disableFocus: boolean = false; /* RN侧默认是独占模式传递FALSE过来，鸿蒙默认未共享模式*/
+  @Provide('hideShutterViewVar') hideShutterView: boolean = false;
   @Provide('preventsDisplaySleepDuringVideoPlaybackVar') preventsDisplaySleepDuringVideoPlayback: boolean =
     true; /* 默认true*/
   @State
@@ -168,6 +169,8 @@ export struct RNCVideo {
   viewHeight: number = 0;
   @State
   audioOutput: string = "speaker";
+  @Provide
+  shutterColor: number = -1
   @Provide
   videoHeight: number | string = CommonConstants.FULL_PERCENT;
   @Provide
@@ -277,6 +280,8 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
+    this.shutterColor = this.descriptor.rawProps['shutterColor']
+    this.hideShutterView = this.descriptor.rawProps['hideShutterView']
     this.audioOutput = this.descriptor.rawProps['audioOutput'] !== undefined ? this.descriptor.rawProps['audioOutput'] : "speaker";
     this.muted = this.descriptor.rawProps['muted']
     this.paused = this.descriptor.rawProps['paused']
