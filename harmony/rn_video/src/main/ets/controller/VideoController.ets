@@ -179,6 +179,7 @@ export class VideoController {
 
       this.avPlayer.on(Events.SEEK_DONE, (seekDoneTime: number) => {
         Logger.debug(TAG, `seekDone success,and seek time is: ${seekDoneTime} `);
+        this.playPageThis.onVideoSeek(this.avplayerCurrentTime, seekDoneTime);
       })
 
       this.avPlayer.on(Events.AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO, (data: audio.AudioStreamDeviceChangeInfo) => {

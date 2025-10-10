@@ -135,6 +135,7 @@ export interface IRNCVideo {
   onVideoAudioBecomingNoisy: () => void
   onVideoAspectRatio: (width: number, height: number) => void
   onRestoreUserInterfaceForPictureInPictureStop: () => void
+  onVideoSeek: (currentTime: number, seekTime: number) => void
 }
 
 const TAG: string = 'RNOH in RNCVideo'
@@ -341,6 +342,10 @@ export struct RNCVideo {
 
   onVideoAspectRatio(width: number, height: number){
     this.eventEmitter!.emit("videoAspectRatio",{width:width, height: height})
+  }
+
+  onVideoSeek(currentTime: number, seekTime: number){
+    this.eventEmitter!.emit("videoSeek",{currentTime: currentTime, seekTime: seekTime})
   }
 
   /**
