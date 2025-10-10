@@ -32,6 +32,8 @@ import Logger from './common/util/Logger';
 import { display } from '@kit.ArkUI';
 import observer from '@ohos.arkui.observer';
 import { RNC } from './generated/ts';
+import { audio } from '@kit.AudioKit';
+import { BusinessError } from '@kit.BasicServicesKit';
 
 interface NavDestinationState {
   navigationId: string
@@ -164,6 +166,8 @@ export struct RNCVideo {
   viewWidth: number = 0;
   @State
   viewHeight: number = 0;
+  @State
+  audioOutput: string = "speaker";
   @Provide
   videoHeight: number | string = CommonConstants.FULL_PERCENT;
   @Provide
@@ -201,7 +205,7 @@ export struct RNCVideo {
   private isResume: boolean = false;
   private eventEmitter: RNC.RNCVideo.EventEmitter | undefined = undefined
 
-  aboutToAppear(): void {
+  async aboutToAppear(): Promise<void> {
 
     this.eventEmitter = new RNC.RNCVideo.EventEmitter(this.ctx.rnInstance, this.tag)
     this.descriptor = this.ctx.descriptorRegistry.getDescriptor<VideoViewDescriptor>(this.tag);
@@ -222,6 +226,7 @@ export struct RNCVideo {
     /*------ 初始化 -------*/
     this.updatePropFromDesc();
     this.registerCommandCallback();
+    this.setAudioOutput();
 
     this.callbackList.push(this.ctx.rnInstance.subscribeToLifecycleEvents("BACKGROUND", () => {
       this.paused = true
@@ -272,6 +277,7 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
+    this.audioOutput = this.descriptor.rawProps['audioOutput'] !== undefined ? this.descriptor.rawProps['audioOutput'] : "speaker";
     this.muted = this.descriptor.rawProps['muted']
     this.paused = this.descriptor.rawProps['paused']
     this.isUserPaused = this.descriptor.rawProps['paused']
@@ -302,6 +308,32 @@ export struct RNCVideo {
     if (this.resizeMode === ResizeMode.COVER) {
       this.videoHeight = this.viewHeight
     }
+  }
+
+  async setAudioOutput(){
+    let audioManager = audio.getAudioManager();
+    let audioRoutingManager: audio.AudioRoutingManager = audioManager.getRoutingManager();
+
+    let audioStreamInfo: audio.AudioStreamInfo = {
+      samplingRate: audio.AudioSamplingRate.SAMPLE_RATE_48000, // 采样率。
+      channels: audio.AudioChannel.CHANNEL_2, // 通道。
+      sampleFormat: audio.AudioSampleFormat.SAMPLE_FORMAT_S16LE, // 采样格式。
+      encodingType: audio.AudioEncodingType.ENCODING_TYPE_RAW // 编码格式。
+    };
+
+    let audioRendererInfo: audio.AudioRendererInfo = {
+      usage: audio.StreamUsage.STREAM_USAGE_VOICE_COMMUNICATION,
+      rendererFlags: 0 // 音频渲染器标志。
+    };
+
+    let audioRendererOptions: audio.AudioRendererOptions = {
+      streamInfo: audioStreamInfo,
+      rendererInfo: audioRendererInfo
+    };
+
+    let audioRenderer: audio.AudioRenderer = await audio.createAudioRenderer(audioRendererOptions);
+    await audioRenderer?.start();
+    await audioRoutingManager.setCommunicationDevice(audio.CommunicationDeviceType.SPEAKER, this.audioOutput === "speaker" ? true : false);
   }
 
   onVideoIdle(): void {
