@@ -279,6 +279,8 @@ export struct PlayPlayer {
           this.playVideoModel?.onPictureInPictureStatusChanged(true);
         } else  if(state === PiPWindow.PiPState.STOPPED) {
           this.playVideoModel?.onPictureInPictureStatusChanged(false);
+        } else  if(state === PiPWindow.PiPState.ABOUT_TO_RESTORE) {
+          this.playVideoModel?.onRestoreUserInterfaceForPictureInPictureStop();
         }
       });
       // 监听画中画控制播放按钮，用以操作视频播放/暂停

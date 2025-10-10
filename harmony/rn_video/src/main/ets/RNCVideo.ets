@@ -133,6 +133,8 @@ export interface IRNCVideo {
   onVideoIdle: () => void
   onTextTrackDataChanged: (subtitleTracks: string) => void
   onVideoAudioBecomingNoisy: () => void
+  onVideoAspectRatio: (width: number, height: number) => void
+  onRestoreUserInterfaceForPictureInPictureStop: () => void
 }
 
 const TAG: string = 'RNOH in RNCVideo'
@@ -331,6 +333,14 @@ export struct RNCVideo {
 
   onVideoAudioBecomingNoisy(){
     this.eventEmitter!.emit("videoAudioBecomingNoisy",{})
+  }
+
+  onRestoreUserInterfaceForPictureInPictureStop(){
+    this.eventEmitter!.emit("restoreUserInterfaceForPictureInPictureStop",{})
+  }
+
+  onVideoAspectRatio(width: number, height: number){
+    this.eventEmitter!.emit("videoAspectRatio",{width:width, height: height})
   }
 
   /**

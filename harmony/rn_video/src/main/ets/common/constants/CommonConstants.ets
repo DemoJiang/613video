@@ -176,7 +176,8 @@ export enum Events {
   SEEK_DONE = 'seekDone',
   RATE_CHANGE = 'bitrateDone',
   SUBTITLE_UPDATE = 'subtitleUpdate',
-  AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO = 'audioOutputDeviceChangeWithInfo'
+  AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO = 'audioOutputDeviceChangeWithInfo',
+  VIDEO_SIZE_CHANGE = 'videoSizeChange'
 }
 
 export enum ResizeMode {

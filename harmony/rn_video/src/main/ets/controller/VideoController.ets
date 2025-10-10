@@ -186,6 +186,11 @@ export class VideoController {
         this.playPageThis.onVideoAudioBecomingNoisy();
       });
 
+      this.avPlayer.on(Events.VIDEO_SIZE_CHANGE, (width: number, height: number) => {
+        console.info('videoSizeChange called,and width is:' + width + ', height is :' + height);
+        this.playPageThis.onVideoAspectRatio(width, height);
+      })
+
       // 2025.10.10 监听字幕变化，当发现外挂字幕变化时，则更新字幕（注意：这里监听的是外挂字幕变化，
       // 可能要先添加外挂字幕文件后，这里才会有触发场景，如果是内置字幕轨，要先选择字幕轨之后，这里才会触发）
       this.avPlayer.on(Events.SUBTITLE_UPDATE, async (info: media.SubtitleInfo) => {
@@ -566,6 +571,10 @@ export class VideoController {
 
   onPictureInPictureStatusChanged(isActive: boolean): void{
     this.playPageThis.onPictureInPictureStatusChanged(isActive);
+  }
+
+  onRestoreUserInterfaceForPictureInPictureStop(): void{
+    this.playPageThis.onRestoreUserInterfaceForPictureInPictureStop();
   }
 
   /**
