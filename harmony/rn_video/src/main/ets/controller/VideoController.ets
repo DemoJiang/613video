@@ -180,6 +180,25 @@ export class VideoController {
       this.avPlayer.on(Events.SEEK_DONE, (seekDoneTime: number) => {
         Logger.debug(TAG, `seekDone success,and seek time is: ${seekDoneTime} `);
       })
+
+      this.avPlayer.on(Events.AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO, (data: audio.AudioStreamDeviceChangeInfo) => {
+        console.info(`音频流输出设备发生变化：${JSON.stringify(data)}`);
+        this.playPageThis.onVideoAudioBecomingNoisy();
+      });
+
+      // 2025.10.10 监听字幕变化，当发现外挂字幕变化时，则更新字幕（注意：这里监听的是外挂字幕变化，
+      // 可能要先添加外挂字幕文件后，这里才会有触发场景，如果是内置字幕轨，要先选择字幕轨之后，这里才会触发）
+      this.avPlayer.on(Events.SUBTITLE_UPDATE, async (info: media.SubtitleInfo) => {
+        if (info) {
+          let text = (!info.text) ? '' : info.text
+          let startTime = (!info.startTime) ? 0 : info.startTime
+          let duration = (!info.duration) ? 0 : info.duration
+          this.playPageThis.onTextTrackDataChanged(text);
+          console.info('subtitleUpdate info: text=' + text + ' startTime=' + startTime +' duration=' + duration)
+        } else {
+          console.info('subtitleUpdate info is null')
+        }
+      })
     }
     Logger.debug(TAG, `bindState end`);
   }

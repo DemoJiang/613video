@@ -131,6 +131,8 @@ export interface IRNCVideo {
   onVideoFullscreenPlayerDidDismiss: () => void
   onAudioFocusChanged: (hasAudioFocus: boolean) => void
   onVideoIdle: () => void
+  onTextTrackDataChanged: (subtitleTracks: string) => void
+  onVideoAudioBecomingNoisy: () => void
 }
 
 const TAG: string = 'RNOH in RNCVideo'
@@ -321,6 +323,14 @@ export struct RNCVideo {
 
   onVideoFullscreenPlayerDidDismiss(){
     this.eventEmitter!.emit("videoFullscreenPlayerDidDismiss",{})
+  }
+
+  onTextTrackDataChanged(subtitleTracks: string){
+    this.eventEmitter!.emit("textTrackDataChanged",{subtitleTracks: subtitleTracks})
+  }
+
+  onVideoAudioBecomingNoisy(){
+    this.eventEmitter!.emit("videoAudioBecomingNoisy",{})
   }
 
   /**
