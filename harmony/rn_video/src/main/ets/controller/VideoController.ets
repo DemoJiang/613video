@@ -34,6 +34,7 @@ import Matrix4 from '@ohos.matrix4'
 import { display } from '@kit.ArkUI';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit'
 import { window } from '@kit.ArkUI';
+import { i18n } from '@kit.LocalizationKit';
 
 const TAG: string = 'RNOH in ctrl'
 
@@ -376,11 +377,20 @@ export class VideoController {
           if(type == trackType){
             // 处理相关逻辑
             if(filterType == 'system'){
-
+              let systemLanguage: string = i18n.System.getSystemLanguage();
+              let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
+              if (language === systemLanguage) {
+                let trackId = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+                this.avPlayer.selectTrack(trackId);
+              }
             } else if(filterType == 'disabled'){
 
             } else if(filterType == 'title'){
-
+              let track_name = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_NAME] as string;
+              if (track_name === filterValue) {
+                let trackId = arrList[i][media.MediaDescriptionKey.MD_KEY_TRACK_INDEX] as number;
+                this.avPlayer.selectTrack(trackId);
+              }
             } else if(filterType == 'language'){
               let language = arrList[i][media.MediaDescriptionKey.MD_KEY_LANGUAGE] as string;
               if (language === filterValue) {
