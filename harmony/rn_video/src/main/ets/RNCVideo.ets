@@ -34,6 +34,7 @@ import observer from '@ohos.arkui.observer';
 import { RNC } from './generated/ts';
 import { audio } from '@kit.AudioKit';
 import { BusinessError } from '@kit.BasicServicesKit';
+import { netQuality } from '@kit.NetworkBoostKit';
 
 interface NavDestinationState {
   navigationId: string
@@ -169,6 +170,8 @@ export struct RNCVideo {
   viewHeight: number = 0;
   @State
   audioOutput: string = "speaker";
+  @State
+  reportBandwidth: boolean = false;
   @Provide
   shutterColor: number = -1
   @Provide
@@ -207,6 +210,7 @@ export struct RNCVideo {
   private playVideoModel: VideoController = new VideoController();
   private isResume: boolean = false;
   private eventEmitter: RNC.RNCVideo.EventEmitter | undefined = undefined
+  private oldNetQosBandwidth: number = 0;
 
   async aboutToAppear(): Promise<void> {
 
@@ -230,6 +234,7 @@ export struct RNCVideo {
     this.updatePropFromDesc();
     this.registerCommandCallback();
     this.setAudioOutput();
+    this.onHttpListener();
 
     this.callbackList.push(this.ctx.rnInstance.subscribeToLifecycleEvents("BACKGROUND", () => {
       this.paused = true
@@ -280,6 +285,7 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
+    this.reportBandwidth = this.descriptor.rawProps['reportBandwidth'] !== undefined ? this.descriptor.rawProps['reportBandwidth'] : false;
     this.shutterColor = this.descriptor.rawProps['shutterColor']
     this.hideShutterView = this.descriptor.rawProps['hideShutterView']
     this.audioOutput = this.descriptor.rawProps['audioOutput'] !== undefined ? this.descriptor.rawProps['audioOutput'] : "speaker";
@@ -315,6 +321,32 @@ export struct RNCVideo {
     }
   }
 
+  /**
+   * 监听网络质量变化
+   */
+  onHttpListener(){
+    try {
+      if(this.reportBandwidth){
+        netQuality.on('netQosChange', (list: Array<netQuality.NetworkQos>) => {
+          if (list.length > 0) {
+            list.forEach((qos) => {
+              // 回调信息处理
+              if (this.oldNetQosBandwidth !== qos.linkDownBandwidth) {
+                console.info(`Succeeded receive netQosChange info` + JSON.stringify(qos));
+                this.onVideoBandwidthUpdate(qos.linkDownBandwidth);
+                this.oldNetQosBandwidth = qos.linkDownBandwidth;
+              }
+            });
+          }
+        });
+      } else {
+        netQuality.off('netQosChange');
+      }
+    } catch (err) {
+      console.error('errCode: ' + (err as BusinessError).code + ', errMessage: ' + (err as BusinessError).message);
+    }
+  }
+
   async setAudioOutput(){
     let audioManager = audio.getAudioManager();
     let audioRoutingManager: audio.AudioRoutingManager = audioManager.getRoutingManager();
@@ -339,6 +371,10 @@ export struct RNCVideo {
     let audioRenderer: audio.AudioRenderer = await audio.createAudioRenderer(audioRendererOptions);
     await audioRenderer?.start();
     await audioRoutingManager.setCommunicationDevice(audio.CommunicationDeviceType.SPEAKER, this.audioOutput === "speaker" ? true : false);
+  }
+
+  onVideoBandwidthUpdate(bitrate:number): void {
+    this.eventEmitter!.emit("videoBandwidthUpdate",{bitrate:bitrate,width:this.videoWidth as  number,height:this.videoHeight as  number,trackId:0})
   }
 
   onVideoIdle(): void {
