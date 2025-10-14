@@ -390,11 +390,11 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
 
     const setSource = useCallback(
       (_source?: ReactVideoSource) => {
-        // if (!nativeRef.current) return;
-        // return Commands.setSourceCmd(
-        //   nativeRef.current,
-        //   sourceToUnternalSource(_source),
-        // );
+        if (!nativeRef.current) return;
+        return Commands.setSourceCmd(
+          nativeRef.current,
+          sourceToUnternalSource(_source),
+        );
       },
       [sourceToUnternalSource],
     );

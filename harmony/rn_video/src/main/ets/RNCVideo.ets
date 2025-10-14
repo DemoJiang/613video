@@ -106,6 +106,7 @@ const RNC_VIDEO_CMD_PIP_EXIT: string = 'exitPictureInPictureCmd'
 const RNC_VIDEO_CMD_SEEK: string = 'seekCmd'
 const RNC_VIDEO_CMD_FULLSCREEN: string = 'setFullScreenCmd'
 const RNC_VIDEO_CMD_VOLUME: string = 'setVolumeCmd'
+const RNC_VIDEO_CMD_SOURCE: string = 'setSourceCmd'
 
 export interface IRNCVideo {
   videoMargin: string
@@ -186,6 +187,8 @@ export struct RNCVideo {
   isUserPaused: boolean = false
   @Provide
   enterPictureInPictureOnLeave: boolean = false
+  @State
+  disableDisconnectError: boolean = false
   @Provide
   selectedAudioTrack: RNCSelectTrack = {}
   @Provide
@@ -278,6 +281,8 @@ export struct RNCVideo {
             this.playVideoModel.startPip();
           } else if (command === RNC_VIDEO_CMD_PIP_EXIT) {
             this.playVideoModel.stopPip();
+          } else if (command === RNC_VIDEO_CMD_SOURCE) {
+            this.srcParam = (args[0] as ESObject).uri;
           }
         }))
     }
@@ -285,6 +290,7 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
+    this.disableDisconnectError = this.descriptor.rawProps['disableDisconnectError '] !== undefined ? this.descriptor.rawProps['disableDisconnectError '] : false;
     this.reportBandwidth = this.descriptor.rawProps['reportBandwidth'] !== undefined ? this.descriptor.rawProps['reportBandwidth'] : false;
     this.shutterColor = this.descriptor.rawProps['shutterColor']
     this.hideShutterView = this.descriptor.rawProps['hideShutterView']
@@ -474,7 +480,9 @@ export struct RNCVideo {
   }
 
   onVideoError(err: string): void {
-    this.eventEmitter!.emit("videoError",{error: {errorString:err}});
+    if (!this.disableDisconnectError) {
+      this.eventEmitter!.emit("videoError",{error: {errorString:err}});
+    }
   }
 
   onVideoProgress(time: number, _playableDuration: number = 0, _seekableDuration: number = 0): void {
