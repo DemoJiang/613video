@@ -32,7 +32,7 @@ import fs from '@ohos.file.fs';
 import { BusinessError } from '@kit.BasicServicesKit';
 import { display, PiPWindow } from '@kit.ArkUI';
 import {OverlayDialog} from './OverlayDialog'
-import { RNCSelectTrack } from '../RNCVideo';
+import { ControlsStyles, RNCSelectTrack } from '../RNCVideo';
 
 export interface IPlayPlayer {
   muted: boolean
@@ -110,6 +110,7 @@ export struct PlayPlayer {
   @State matrix: object = Matrix4.identity();
   viewWidth: number = 0;
   viewHeight: number = 0;
+  @Consume controlsStyles: ControlsStyles;
   listener = mediaquery.matchMediaSync('(orientation: landscape)');
   @State sliderWidth: number | string = '80%'
   screenWidth: number = 0
@@ -135,6 +136,7 @@ export struct PlayPlayer {
   @State videoSrc: string = ''
   @State videoResizeMode: string = ''
   @State fullscreenAutorotatePre: boolean = true
+  @State controlsStylePre: ControlsStyles | undefined = undefined
   @State fullscreenOrientationPre: string = 'all'
   @Consume ('extFullscreenVar') extFullscreen: boolean;
   private pipController?: PiPWindow.PiPController;
@@ -143,6 +145,7 @@ export struct PlayPlayer {
     builder: OverlayDialog({
       cancel: ()=> { this.onCancel() },
       confirm: ()=> { this.onAccept() },
+      controlsStyle: $controlsStylePre,
       videoSrc: $videoSrc,
       videoResizeMode: $videoResizeMode,
       fullscreenAutorotate: $fullscreenAutorotatePre,
@@ -378,6 +381,7 @@ export struct PlayPlayer {
     {
       this.playVideoModel?.onVideoFullscreenPlayerWillPresent()
       if (this.dialogController != null) {
+        this.controlsStylePre = this.controlsStyles
         this.videoSrc = this.srcParam
         this.fullscreenAutorotatePre = this.fullscreenAutorotate
         this.fullscreenOrientationPre = this.fullscreenOrientation

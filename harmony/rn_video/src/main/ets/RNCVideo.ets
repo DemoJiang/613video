@@ -93,6 +93,34 @@ export class RNCSelectTrack {
   value?: string = ""
 }
 
+export class ControlsStyles {
+  // 是否隐藏播放位置指示器
+  hidePosition?: boolean = false;
+  // 是否隐藏播放/暂停按钮
+  hidePlayPause?: boolean = false;
+  // 是否隐藏快进按钮
+  hideForward?: boolean = false;
+  // 是否隐藏后退按钮
+  hideRewind?: boolean = false;
+  // 是否隐藏下一集按钮
+  hideNext?: boolean = false;
+  // 是否隐藏上一集按钮
+  hidePrevious?: boolean = false;
+  // 是否隐藏全屏按钮
+  hideFullscreen?: boolean = false;
+  // 是否隐藏进度条
+  hideSeekBar?: boolean = false;
+  // 是否隐藏总时长
+  hideDuration?: boolean = false;
+
+  hideNavigationBarOnFullScreenMode?: boolean = true;
+  hideNotificationBarOnFullScreenMode?: boolean = true;
+  hideSettingButton?: boolean = false;
+  // 快进/后退时间
+  seekIncrementMS?: number = 10000;
+  liveLabel?: string = "LIVE"
+}
+
 export interface AutoLayoutViewState {}
 
 export const RNC_VIDEO_TYPE: string = "RNCVideo"
@@ -189,6 +217,8 @@ export struct RNCVideo {
   enterPictureInPictureOnLeave: boolean = false
   @State
   disableDisconnectError: boolean = false
+  @Provide
+  controlsStyles: ControlsStyles = {}
   @Provide
   selectedAudioTrack: RNCSelectTrack = {}
   @Provide
@@ -290,7 +320,8 @@ export struct RNCVideo {
 
   /* 更新属性变更  */
   updatePropFromDesc(): void {
-    this.disableDisconnectError = this.descriptor.rawProps['disableDisconnectError '] !== undefined ? this.descriptor.rawProps['disableDisconnectError '] : false;
+    this.controlsStyles = this.descriptor.rawProps['controlsStyles'];
+    this.disableDisconnectError = this.descriptor.rawProps['disableDisconnectError'] !== undefined ? this.descriptor.rawProps['disableDisconnectError'] : false;
     this.reportBandwidth = this.descriptor.rawProps['reportBandwidth'] !== undefined ? this.descriptor.rawProps['reportBandwidth'] : false;
     this.shutterColor = this.descriptor.rawProps['shutterColor']
     this.hideShutterView = this.descriptor.rawProps['hideShutterView']

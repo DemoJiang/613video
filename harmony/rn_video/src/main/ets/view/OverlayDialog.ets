@@ -1,5 +1,6 @@
 import { common } from "@kit.AbilityKit";
 import { window } from "@kit.ArkUI";
+import { ControlsStyles } from "../RNCVideo";
 
 let fitMap: Map<string,  ImageFit> = new Map();
 fitMap.set('cover',ImageFit.Cover)
@@ -11,6 +12,7 @@ fitMap.set('center',ImageFit.CENTER)
 export struct OverlayDialog {
  // @Link textValue: string
   //@State videoSrc: Resource| string = 'https://res.vmallres.com//uomcdn/CN/cms/202210/C75C7E20060F3E909F2998E13C3ABC03.mp4'
+  @Link controlsStyle: ControlsStyles
   @Link videoSrc: string
   @Link videoResizeMode:string
   @Link fullscreenAutorotate:boolean
@@ -92,6 +94,32 @@ export struct OverlayDialog {
       }
   }
 
+  /**
+   * 快退
+   */
+  setRewTime(): number{
+    let rewTime: number = 0;
+    if(this.controlsStyle !== undefined && this.controlsStyle.seekIncrementMS !== undefined){
+      rewTime = this.currentTime - this.controlsStyle.seekIncrementMS / 1000;
+    } else {
+      rewTime = this.currentTime - 10000 / 1000
+    }
+    return rewTime
+  }
+
+  /**
+   * 快进
+   */
+  setFfwdTime(): number{
+    let ffwdTime: number = 0
+    if(this.controlsStyle !== undefined && this.controlsStyle.seekIncrementMS !== undefined){
+      ffwdTime = this.currentTime + this.controlsStyle.seekIncrementMS / 1000;
+    } else {
+      ffwdTime = this.currentTime + 10000 / 1000
+    }
+    return ffwdTime
+  }
+
 
   build() {
     Column() {
@@ -149,50 +177,122 @@ export struct OverlayDialog {
             })
             .width(50)
             .height(50)
+            .visibility(Visibility.Hidden)
 
-          Row() {
-            Image( this.paused ? $r('app.media.ic_play') : $r('app.media.ic_pause'))
-              .onClick(() => {
-                this.paused = !this.paused
-                if (this.paused == true) {
-                  this.videoController.pause()
-                }else {
-                  this.videoController.start()
-                }
+          Column(){
+            Row({space:50}) {
+              Image($r('app.media.exo_prev'))
+                .onClick(() => {
+                  // 上一集  暂不处理
+                })
+                .width(30)
+                .height(30)
+                .visibility(this.controlsStyle?.hidePrevious ? Visibility.Hidden: Visibility.Visible)
+              Image($r('app.media.exo_rew'))
+                .onClick(() => {
+                  // 快退
+                  this.videoController.setCurrentTime(this.setRewTime())
+                  this.currentTime = this.setRewTime()
+                })
+                .width(30)
+                .height(30)
+                .visibility(this.controlsStyle?.hideRewind ? Visibility.Hidden: Visibility.Visible)
+              Image(this.paused ? $r('app.media.ic_play') : $r('app.media.ic_pause'))
+                .onClick(() => {
+                  this.paused = !this.paused
+                  if (this.paused == true) {
+                    this.videoController.pause()
+                  }else {
+                    this.videoController.start()
+                  }
+                })
+                .width(30)
+                .height(30)
+                .visibility(this.controlsStyle?.hidePlayPause ? Visibility.Hidden: Visibility.Visible)
+              Image($r('app.media.exo_ffwd'))
+                .onClick(() => {
+                  // 快进
+                  this.videoController.setCurrentTime(this.setFfwdTime())
+                  this.currentTime = this.setFfwdTime()
+                })
+                .width(30)
+                .height(30)
+                .visibility(this.controlsStyle?.hideForward ? Visibility.Hidden: Visibility.Visible)
+              Image($r('app.media.exo_next'))
+                .onClick(() => {
+                  // 下一集  暂不处理
+                })
+                .width(30)
+                .height(30)
+                .visibility(this.controlsStyle?.hideNext ? Visibility.Hidden: Visibility.Visible)
+            }.width("90%")
+            .height("20%")
+            .alignItems(VerticalAlign.Center)
+            .justifyContent(FlexAlign.Center)
+
+            Row() {
+              // Image( this.paused ? $r('app.media.ic_play') : $r('app.media.ic_pause'))
+              //   .onClick(() => {
+              //     this.paused = !this.paused
+              //     if (this.paused == true) {
+              //       this.videoController.pause()
+              //     }else {
+              //       this.videoController.start()
+              //     }
+              //   })
+              //   .width(20)
+              //   .height(20)
+
+              Text(this.formatSecondsToString(this.currentTime))
+                .fontSize('10')
+                .fontColor(Color.White)
+                .margin({ left: 10 })
+
+              Slider({
+                value: this.currentTime,
+                min: 0,
+                max: this.durationTime
               })
-              .width(20)
-              .height(20)
+                .trackColor(Color.Gray)
+                .selectedColor(Color.White)
+                .onChange((value: number, mode: SliderChangeMode) => {
+                  //let seekValue: number = value
+                  //滑块滑动结束后再设置seek
+                  if (mode == SliderChangeMode.End || mode == SliderChangeMode.Click) {
+                    setTimeout(
+                      ()=> {this.videoController.setCurrentTime(value)}
+                      , 100);
+                  }
+                })
+                .width('55%')
+                .margin({ left: 5 })
 
-            Text(this.formatSecondsToString(this.currentTime))
-              .fontSize('10')
-              .fontColor(Color.White)
-              .margin({ left: 10 })
+              Text(this.formatSecondsToString(this.durationTime))
+                .fontSize('10')
+                .fontColor(Color.White)
+                .margin({ left: 5, right: 5 })
 
-            Slider({
-              value: this.currentTime,
-              min: 0,
-              max: this.durationTime
-            })
-              .onChange((value: number, mode: SliderChangeMode) => {
-                //let seekValue: number = value
-                //滑块滑动结束后再设置seek
-                if (mode == SliderChangeMode.End || mode == SliderChangeMode.Click) {
-                  setTimeout(
-                    ()=> {this.videoController.setCurrentTime(value)}
-                    , 100);
-                }
-              })
-              .width('60%')
-              .margin({ left: 5 })
+              Image($r('app.media.exo_setting'))
+                .onClick(() => {
+                })
+                .width(20)
+                .height(20)
+                .margin({ right: 5 })
+                .visibility(Visibility.Hidden)
+              Image($r('app.media.exo_out_full'))
+                .onClick(() => {
+                  this.controller?.close()
+                  this.cancel()
+                })
+                .width(20)
+                .height(20)
 
-            Text(this.formatSecondsToString(this.durationTime))
-              .fontSize('10')
-              .fontColor(Color.White)
-              .margin({ left: 5 })
-
-          }.width("90%")
-          .height("20%")
-          .alignItems(VerticalAlign.Center)
+            }.width("90%")
+            .height("20%")
+            .alignItems(VerticalAlign.Center)
+            .justifyContent(FlexAlign.Center)
+            .margin({top: 20})
+          }.height("15%")
 
         }
         .width('100%')
