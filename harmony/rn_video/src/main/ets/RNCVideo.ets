@@ -290,6 +290,7 @@ export struct RNCVideo {
     this.playVideoModel.release();
     //销毁 navDestinationCallback
     observer.off('navDestinationUpdate', this.navDestinationCallback);
+    this.playVideoModel?.releaseVideo()
   }
 
   registerCommandCallback(): void {

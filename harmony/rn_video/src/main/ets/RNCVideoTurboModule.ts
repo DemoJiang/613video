@@ -40,10 +40,10 @@ export class RNCVideoTurboModule extends UITurboModule implements TM.RNVideoDeco
 
   getWidevineLevel(): Promise<number> {
     let promise: Promise<number> = new Promise((resolve, reject) => {
-      // com.widevine.alpha/edef8ba9-79d6-4ace-a3c8-27dcd51d21ed
+      // com.widevine.alpha/edef8ba9-79d6-4ace-a3c8-27dcd51d21ed  目前只在手表上支持，暂不支持手机，手机目前只com.wiseplay.drm
       let widevineLevel: number = 0; // 鸿蒙获取的模式级别的意思和android对不上，android只有三种，基础1，中等2，高级3
       let level: drm.ContentProtectionLevel =
-        drm.createMediaKeySystem('com.widevine.alpha').getMaxContentProtectionLevel()
+        drm.createMediaKeySystem('com.wiseplay.drm').getMaxContentProtectionLevel()
       if (level === drm.ContentProtectionLevel.CONTENT_PROTECTION_LEVEL_UNKNOWN) { //设备解密和解码类型未知。
         widevineLevel = 0;
       } else if (level === drm.ContentProtectionLevel.CONTENT_PROTECTION_LEVEL_SW_CRYPTO) { //  设备使用软件级。

@@ -35,6 +35,8 @@ import { display } from '@kit.ArkUI';
 import { BusinessError, deviceInfo } from '@kit.BasicServicesKit'
 import { window } from '@kit.ArkUI';
 import { i18n } from '@kit.LocalizationKit';
+import { avSession } from '@kit.AVSessionKit';
+import { AvSessionController } from './AvSessionController';
 
 const TAG: string = 'RNOH in ctrl'
 
@@ -59,11 +61,14 @@ export class VideoController {
   public audioTracksBeanArr?: AudioTracksBean[];
   public videoTracksBeanArr?: VideoTracksBean[];
   private mPreventsDisplaySleepDuringVideoPlayback: boolean = true; /* 默认true*/
+  private avSessionController: AvSessionController;
 
-  // 记录媒体服务监听的当前播放时间，用于最后刷新 onVideoProgress
+  // 记录媒体服务监听的当前播放时间 ms，用于最后刷新 onVideoProgress
   private avplayerCurrentTime: number = 0;
+  private isPlaying: boolean = false;
 
   constructor() {
+    this.avSessionController = AvSessionController.getInstance();
     this.createAVPlayer();
   }
 
@@ -83,6 +88,7 @@ export class VideoController {
       if (avPlayer) {
         Logger.debug(TAG, `createAVPlayer isNull: ${avPlayer == null}`);
         this.avPlayer = avPlayer;
+        this.setAvSessionListener();
         this.bindState();
         this.onAudioFocusChange();
         Logger.debug(TAG, `createAVPlayer after bind`);
@@ -101,6 +107,122 @@ export class VideoController {
         Logger.error(TAG, '[PlayVideoModel] createAvPlayer fail!');
       }
     });
+  }
+
+  private isCurAvSession(): boolean {
+    let curAvMetadata = this.avSessionController.getAvSessionMetadata();
+    if (!curAvMetadata) {
+      Logger.error(TAG, 'playVideo failed, AvMetadata is undefined');
+      return false;
+    }
+    return true;
+  }
+
+  private sessionPlayCallback(){
+    if (this.isCurAvSession()) {
+      this.avPlayer.play();
+      this.updateNotificationIsPlay(true)
+    }
+  }
+
+  private sessionPauseCallback() {
+    if (this.isCurAvSession()) {
+      this.avPlayer.pause();
+      this.updateNotificationIsPlay(false)
+    }
+  }
+
+  private sessionStopCallback() {
+
+  }
+
+  /**
+   * 通知栏播控中心的快进回调
+   * @param time 快进时间 s
+   */
+  private sessionFastForwardCallback(time?: number) {
+    if (this.isCurAvSession()) {
+      if (!time) {
+        return;
+      }
+      if (this.isCurAvSession()) {
+        this.setSeekTime((this.avplayerCurrentTime + time * 1000) / 1000);
+      }
+    }
+  }
+
+  /**
+   * 通知栏播控中心的快退回调
+   * @param time 快退时间 s
+   */
+  private sessionRewindCallback(time?: number) {
+    if (!time) {
+      return;
+    }
+    if (this.isCurAvSession()) {
+      this.setSeekTime((this.avplayerCurrentTime - time * 1000) / 1000);
+    }
+  }
+
+  /**
+   * 通知栏播控中心的进度条滑动回调
+   * @param seekTime 播放进度 ms
+   */
+  private sessionSeekCallback(seekTime: number) {
+    if (this.isCurAvSession()) {
+      this.setSeekTime(seekTime / 1000);
+    }
+  }
+
+  /**
+   * 更新通知栏播控中心播放状态
+   */
+  private updateNotificationIsPlay(isPlay: boolean) {
+    this.isPlaying = isPlay;
+    this.avSessionController.setAvSessionPlayState({
+      state: isPlay ? avSession.PlaybackState.PLAYBACK_STATE_PLAY : avSession.PlaybackState.PLAYBACK_STATE_PAUSE,
+      position: {
+        elapsedTime: this.avplayerCurrentTime,
+        updateTime: new Date().getTime()
+      },
+      duration: this.duration
+    });
+  }
+
+  /**
+   * 设置通知栏播控中心按钮监听
+   */
+  public async setAvSessionListener() {
+    if (!this.avSessionController) {
+      Logger.error(TAG, '[PlayVideoModel] setAvSessionListener fail!');
+      return;
+    }
+    this.avSessionController.getAvSession()?.on('play', () => this.sessionPlayCallback());
+    this.avSessionController.getAvSession()?.on('pause', () => this.sessionPauseCallback());
+    this.avSessionController.getAvSession()?.on('stop', () => this.sessionStopCallback());
+    this.avSessionController.getAvSession()?.on('fastForward',
+      (time?: number) => this.sessionFastForwardCallback(time));
+    this.avSessionController.getAvSession()?.on('rewind', (time?: number) => this.sessionRewindCallback(time));
+    this.avSessionController.getAvSession()?.on('seek', (seekTime: number) => this.sessionSeekCallback(seekTime));
+  }
+
+  releaseVideo() {
+    if (this.avPlayer) {
+      this.avPlayer.off(Events.TIME_UPDATE);
+      this.avPlayer.off(Events.DURATION_UPDATE);
+      this.avPlayer.off(Events.ERROR);
+      this.avPlayer.off(Events.END_OF_STREAM);
+      this.avPlayer.off(Events.RATE_CHANGE);
+      this.avPlayer.off(Events.BUFFERING_UPDATE);
+      this.avPlayer.off(Events.SEEK_DONE);
+      this.avPlayer.off(Events.AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO);
+      this.avPlayer.off(Events.VIDEO_SIZE_CHANGE);
+      this.avPlayer.off(Events.SUBTITLE_UPDATE);
+      this.avPlayer.off(Events.STATE_CHANGE);
+      this.avPlayer.off(Events.VOLUME_CHANGE);
+      this.avPlayer.release();
+      this.avSessionController?.unregisterSessionListener();
+    }
   }
 
   /**
@@ -249,8 +371,13 @@ export class VideoController {
           this.watchStatus();
           if (this.playerThis.paused) {
             this.avPlayer.pause();
+            this.isPlaying = false;
+            this.updateNotificationIsPlay(false);
           } else {
+            this.avSessionController.setAVMetadata("12345678", this.avPlayer.duration);
             this.avPlayer.play();
+            this.isPlaying = true;
+            this.updateNotificationIsPlay(true);
           }
           let startSecond =
             (this.avPlayer.currentTime == CurrentTime.CURRENTTIME_MINUS_ONE ? CurrentTime.CURRENTTIME_ZERO :
@@ -527,6 +654,7 @@ export class VideoController {
    */
   pause(): void {
     this.avPlayer?.pause();
+    this.isPlaying = false;
   }
 
   /**
@@ -622,8 +750,10 @@ export class VideoController {
     Logger.debug(TAG, `switchPlayOrPause,state out= ${this.avPlayer?.state};paused= ${JSON.stringify(paused)}`);
     if (paused) {
       this.avPlayer?.pause();
+      this.isPlaying = false;
     } else {
       this.avPlayer?.play();
+      this.isPlaying = true;
     }
   }
 
@@ -704,6 +834,8 @@ export class VideoController {
    * @return
    */
   setSeekTime(value: number): void {
+    value = Math.max(value, 0);
+    value = Math.min(value, this.duration);
     Logger.debug(TAG, `setSeekTime== ${JSON.stringify(value)}`);
     this.seekTime = value * 1000;
     Logger.debug(TAG, `setSeekTime== ${this.seekTime}`);
@@ -713,7 +845,9 @@ export class VideoController {
       this.status === CommonConstants.STATUS_PAUSE ||
       this.status === CommonConstants.STATUS_COMPLETED
     ) {
+      this.avplayerCurrentTime = this.seekTime;
       this.avPlayer.seek(this.seekTime, media.SeekMode.SEEK_CLOSEST);
+      this.updateNotificationIsPlay(this.isPlaying);
     }
   }
 
