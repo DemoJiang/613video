@@ -174,10 +174,11 @@ export enum Events {
   END_OF_STREAM = 'endOfStream',
   BUFFERING_UPDATE = 'bufferingUpdate',
   SEEK_DONE = 'seekDone',
-  RATE_CHANGE = 'bitrateDone',
+  RATE_CHANGE = 'speedDone',
   SUBTITLE_UPDATE = 'subtitleUpdate',
   AUDIO_OUTPUT_DEVICE_CHANGE_WITH_INFO = 'audioOutputDeviceChangeWithInfo',
-  VIDEO_SIZE_CHANGE = 'videoSizeChange'
+  VIDEO_SIZE_CHANGE = 'videoSizeChange',
+  VOLUME_CHANGE = 'volumeChange'
 }
 
 export enum ResizeMode {
