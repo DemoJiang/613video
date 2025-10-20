@@ -350,19 +350,9 @@ const Video = forwardRef<VideoRef, ReactVideoProps>(
         return;
       }
 
-      const callSeekFunction = () => {
-        if (!nativeRef.current) return;
-        Commands.seekCmd(nativeRef.current, time, tolerance ?? 100);
-      };
+      if (!nativeRef.current) return;
+      Commands.seekCmd(nativeRef.current, time, tolerance ?? 100);
 
-      Platform.select({
-        ios: callSeekFunction,
-        android: callSeekFunction,
-        default: () => {
-          // TODO: Implement VideoManager.seekCmd for windows
-          nativeRef.current?.setNativeProps({seek: time});
-        },
-      })();
     }, []);
 
     const pause = useCallback(() => {
