@@ -197,7 +197,7 @@ export struct RNCVideo {
   viewWidth: number = 0;
   @State
   viewHeight: number = 0;
-  @State
+  @State @Watch("setAudioOutput")
   audioOutput: string = "speaker";
   @State
   reportBandwidth: boolean = false;
@@ -408,7 +408,7 @@ export struct RNCVideo {
 
     let audioRenderer: audio.AudioRenderer = await audio.createAudioRenderer(audioRendererOptions);
     await audioRenderer?.start();
-    await audioRoutingManager.setCommunicationDevice(audio.CommunicationDeviceType.SPEAKER, this.audioOutput === "speaker" ? true : false);
+    await audioRoutingManager.setCommunicationDevice(audio.CommunicationDeviceType.SPEAKER, this.audioOutput === "speaker");
   }
 
   onVideoBandwidthUpdate(bitrate:number): void {
